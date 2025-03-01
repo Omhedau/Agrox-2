@@ -4,15 +4,36 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import useUserStore from "@/store/userStore";
 
 const Profile = () => {
-  const { user, logout } = useUserStore() as { user: { name: string; mobile: string; gender: string; role: string; lang: string }, logout: () => void };
+  const { user, logout } = useUserStore() as { 
+    user: { 
+      name: string; 
+      mobile: string; 
+      gender: string; 
+      role: string; 
+      lang: string;
+      village?: { 
+        village_name: string;
+        village_code: string;
+        taluka_id?: { taluka_name: string };
+      };
+    }, 
+    logout: () => void 
+  };
 
   const getInitials = (name: string) => {
-    const initials = name
+    return name
       .split(" ")
       .map((word) => word.charAt(0).toUpperCase())
       .join("");
-    return initials;
   };
+
+  // Extract taluka, village, and village code
+  const taluka = user.village?.taluka_id?.taluka_name || "Unknown Taluka";
+  const village = user.village?.village_name || "Unknown Village";
+  const villageCode = user.village?.village_code || "000000";
+
+  // Format location: "Pune > Taluka > Village (VillageCode)"
+  const formattedLocation = `District : Pune  \nTaluka: ${taluka} \nVillage: ${village} (${villageCode})`;
 
   return (
     <ScrollView className="flex-1 bg-gray-100">
@@ -47,7 +68,23 @@ const Profile = () => {
           <Ionicons name="female-outline" size={20} color="#6B7280" />
           <Text className="ml-4 text-base text-gray-700">{user.gender}</Text>
         </View>
+        {/* Display Formatted Location */}
+        
       </View>
+
+
+      <View className="mx-6 mt-6 bg-white rounded-lg shadow-md p-4">
+        <Text className="text-lg font-semibold text-gray-800 mb-4">
+          Address
+        </Text>
+        {/* Display Formatted Location */}
+        <View className="flex-row items-center mb-3">
+          <Ionicons name="location-outline" size={20} color="#6B7280" />
+          <Text className="ml-4 text-base text-gray-700">{formattedLocation}</Text>
+        </View>
+      </View>
+
+      
 
       {/* Settings and Actions */}
       <View className="mx-6 mt-6">

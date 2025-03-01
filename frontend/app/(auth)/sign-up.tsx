@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,31 +6,93 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  StyleSheet,
 } from "react-native";
 import images from "@/constants/images";
+import { Picker } from "@react-native-picker/picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import useUserStore from "@/store/userStore";
+import { MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
+import constants from "@/constants/data";
 
 const SignUp = () => {
   const { mobile } = useLocalSearchParams();
   const mobileNumber = Array.isArray(mobile) ? mobile[0] : mobile;
+  const [villages, setVillages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedTaluka, setSelectedTaluka] = useState("");
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     mobile: mobileNumber || "",
     gender: "Male",
     lang: "English",
+    village: {},
   });
+
+  const districts = ["Pune"];
+
+  const talukas = [
+    "Haveli",
+    "Maval",
+    "Mulshi",
+    "Junnar",
+    "Ambegaon",
+    "Khed",
+    "Shirur",
+    "Daund",
+    "Purandar",
+    "Velhe",
+    "Bhor",
+    "Indapur",
+    "Baramati",
+  ];
+
   const { signUp } = useUserStore() as { signUp: (userDetails: any) => void };
 
   const handleSubmit = () => {
     const fullName = `${formData.firstName} ${formData.lastName}`;
     const { firstName, lastName, ...rest } = formData;
-    const userDetails = { ...rest, name: fullName  };
+    const userDetails = { ...rest, name: fullName };
 
     signUp(userDetails);
-
   };
+
+  const getVillages = async () => {
+    if (!selectedDistrict || !selectedTaluka) {
+      setVillages([]); // Reset villages if district or taluka is not selected
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await axios.post(
+        `${constants.base_url}/api/get-villages`,
+        {
+          district_name: selectedDistrict,
+          taluka_name: selectedTaluka,
+        }
+      );
+      const data = response.data;
+      setVillages(data.villages);
+    } catch (error) {
+      console.error("Error fetching villages:", error);
+      setError("Failed to fetch villages. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getVillages();
+  }, [selectedDistrict, selectedTaluka]);
 
   return (
     <ScrollView
@@ -107,8 +169,8 @@ const SignUp = () => {
             ))}
           </View>
 
-          {/* lang Selection */}
-          <Text className="text-gray-700 font-rubik mb-2">language</Text>
+          {/* Language Selection */}
+          <Text className="text-gray-700 font-rubik mb-2">Language</Text>
           <View className="flex-row justify-between mb-6">
             {["English", "मराठी", "हिंदी"].map((lang) => (
               <TouchableOpacity
@@ -133,6 +195,128 @@ const SignUp = () => {
             ))}
           </View>
 
+          {/* District Selection */}
+          <Text className="text-gray-700 font-rubik mb-2">
+            District{" "}
+            <Text style={styles.requiredStar} className="text-lg">
+              *
+            </Text>
+          </Text>
+          <View
+            className="border border-gray-300 rounded-lg mb-4 overflow-hidden"
+            style={styles.pickerContainer}
+          >
+            <Picker
+              selectedValue={selectedDistrict}
+              onValueChange={(value) => setSelectedDistrict(value as string)}
+              style={styles.picker}
+              dropdownIconColor="#4A5568"
+              mode="dropdown"
+            >
+              <Picker.Item
+                style={{ color: "#A0AEC0" }}
+                label="Select district"
+                value=""
+              />
+              {districts.map((district) => (
+                <Picker.Item
+                  key={district}
+                  label={district}
+                  value={district}
+                  color={selectedDistrict === district ? "green" : "black"}
+                />
+              ))}
+            </Picker>
+            <View style={styles.dropdownIcon}>
+              <MaterialIcons name="arrow-drop-down" size={24} color="#4A5568" />
+            </View>
+          </View>
+
+          {/* Taluka Selection */}
+          <Text className="text-gray-700 font-rubik mb-2">
+            Taluka{" "}
+            <Text style={styles.requiredStar} className="text-lg">
+              *
+            </Text>
+          </Text>
+          <View
+            className="border border-gray-300 rounded-lg mb-4 overflow-hidden"
+            style={styles.pickerContainer}
+          >
+            <Picker
+              selectedValue={selectedTaluka}
+              onValueChange={(value) => setSelectedTaluka(value as string)}
+              style={styles.picker}
+              dropdownIconColor="#4A5568"
+              mode="dropdown"
+            >
+              <Picker.Item
+                style={{ color: "#A0AEC0" }}
+                label="Select taluka"
+                value=""
+              />
+              {talukas.map((taluka) => (
+                <Picker.Item
+                  key={taluka}
+                  label={taluka}
+                  value={taluka}
+                  color={selectedTaluka === taluka ? "green" : "black"}
+                />
+              ))}
+            </Picker>
+            <View style={styles.dropdownIcon}>
+              <MaterialIcons name="arrow-drop-down" size={24} color="#4A5568" />
+            </View>
+          </View>
+
+          {/* Village Selection */}
+          {loading ? (
+            <Text className="text-gray-700 font-rubik mb-2">
+              Loading villages...
+            </Text>
+          ) : error ? (
+            <Text className="text-red-500 font-rubik mb-2">{error}</Text>
+          ) : villages.length > 0 ? (
+            <View
+              className="border border-gray-300 rounded-lg mb-4 overflow-hidden"
+              style={styles.pickerContainer}
+            >
+              <Picker
+                selectedValue={formData.village}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    village: value,
+                  })
+                }
+                style={styles.picker}
+                dropdownIconColor="#4A5568"
+                mode="dropdown"
+              >
+                <Picker.Item
+                  style={{ color: "#A0AEC0" }}
+                  label="Select village"
+                  value=""
+                />
+                {villages.map((village) => (
+                  <Picker.Item
+                    key={village}
+                    label={village}
+                    value={village}
+                    color={formData.village === village ? "green" : "black"}
+                  />
+                ))}
+              </Picker>
+              <View style={styles.dropdownIcon}>
+                <MaterialIcons
+                  name="arrow-drop-down"
+                  size={24}
+                  color="#4A5568"
+                />
+              </View>
+            </View>
+          ) : null}
+
           {/* Save Button */}
           <TouchableOpacity
             className="w-full h-12 bg-primary-500 rounded-full flex items-center justify-center"
@@ -150,5 +334,34 @@ const SignUp = () => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  pickerContainer: {
+    position: "relative",
+    backgroundColor: "#F7FAFC",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderRadius: 8,
+  },
+  picker: {
+    width: "100%",
+    height: 50,
+    color: "#1A202C",
+  },
+  dropdownIcon: {
+    position: "absolute",
+    right: 10,
+    top: 12,
+    pointerEvents: "none",
+  },
+  requiredStar: {
+    color: "red",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginBottom: 8,
+  },
+});
 
 export default SignUp;

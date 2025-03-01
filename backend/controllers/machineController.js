@@ -62,21 +62,42 @@ const getMachine = asyncHandler(async (req, res) => {
 //@desc Add a machine 
 //@route POST /api/machine
 //@access Private
+
 const addMachine = asyncHandler(async (req, res) => {
-  const { name, description, price, image, documents } = req.body;
-  const machine = new Machine({
-    name,
-    description,
-    price,
-    image,
-    documents,
-  });
-  const createdMachine = await machine.save();
-  res.status(201).json({
-    message: "Machine added successfully",
-    machine: createdMachine,
-  });
+  try {
+    const ownerId = req.user?.id;
+    const machineData = req.body;
+
+    console.log(`[DEBUG] - Request received to add machine by user: ${ownerId}`);
+
+    // Validate required fields
+    if (!machineData.name || !machineData.yearOfMfg || !machineData.rentalCost || !machineData.rentalUnit) {
+      console.error("[ERROR] - Missing required machine details");
+      return res.status(400).json({ error: "Missing required fields: name, yearOfMfg, rentalCost, rentalUnit" });
+    }
+
+    console.log("[INFO] - Valid machine data received, proceeding to save");
+
+    const machine = new Machine({ ownerId, ...machineData });
+
+    console.log("[DEBUG] - Machine object before saving:", machine);
+
+    const createdMachine = await machine.save();
+
+    console.log(`[SUCCESS] - Machine added successfully. Machine ID: ${createdMachine._id}`);
+
+    res.status(201).json({
+      message: "Machine added successfully",
+      machine: createdMachine,
+    });
+  } catch (error) {
+    console.error("[ERROR] - Failed to add machine:", error.message);
+    res.status(500).json({ error: "Internal server error", details: error.message });
+  }
 });
+
+
+
 
 //@desc Update a machine
 //@route PUT /api/machine/:id

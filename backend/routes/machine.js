@@ -9,7 +9,8 @@ router.post("/all", getMachines);
 router.get("/", getMachine);
 router.post("/", addMachine);
 router.get("/:id", getMachine);
-router.post("/add", addMachine);
 router.use(validateToken);
+router.post("/add", addMachine);
+
 
 module.exports = router;

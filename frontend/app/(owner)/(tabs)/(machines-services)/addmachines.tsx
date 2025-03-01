@@ -71,7 +71,7 @@ const AddMachineForm = () => {
     documents: [] as string[],
   });
 
-  const rentalUnits = ["Hour", "Day", "Week", "Month", "Year"];
+  const rentalUnits = ["hour", "day", "week", "month", "year"];
 
   const pickImage = async () => {
     try {
@@ -246,14 +246,15 @@ const AddMachineForm = () => {
         Alert.alert("Success", "Machine added successfully");
         router.back(); // Navigate back after successful submission
       } else {
-        Alert.alert("Error", "Failed to add machine. Please try again.");
+        const errorMessage = response.data.message || "Failed to add machine. Please try again.";
+        Alert.alert("Error", errorMessage);
       }
     } catch (error) {
       console.error("Error adding machine:", error);
       Alert.alert("Error", "Failed to add machine. Please try again.");
-    } finally {
+    } finally { 
       setIsSubmitting(false);
-    }
+    }   
   };
 
   return (

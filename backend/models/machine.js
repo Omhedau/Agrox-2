@@ -22,7 +22,7 @@ const MachineSchema = new mongoose.Schema(
       required: true,
     },
     images: { type: [String] },
-    
+    documents: { type: [String] },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },

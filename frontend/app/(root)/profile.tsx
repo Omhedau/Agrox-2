@@ -56,14 +56,14 @@ const Profile = () => {
         </Text>
         <View className="bg-white rounded-lg shadow-md p-4 space-y-4">
           <TouchableOpacity
-            className="flex-row items-center p-2 bg-gray-100 rounded-lg"
+            className="flex-row items-center p-2 bg-gray-100 mb-2 rounded-lg"
             onPress={() => console.log("Navigating to Edit Profile")}
           >
             <MaterialIcons name="edit" size={24} color="#4F46E5" />
             <Text className="ml-4 text-base text-gray-800">Edit Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className="flex-row items-center p-2 bg-gray-100 rounded-lg"
+            className="flex-row items-center p-2 bg-gray-100 mb-2 rounded-lg"
             onPress={() => console.log("Navigating to Settings")}
           >
             <Ionicons name="settings-outline" size={24} color="#4F46E5" />

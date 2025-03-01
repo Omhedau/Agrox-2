@@ -33,23 +33,45 @@ const getUsers = asyncHandler(async (req, res) => {
 //@desc Get user details
 //@route GET /api/user/:id
 //@access Public
+
+
+//@desc Get user details
+//@route GET /api/user/:id
+//@access Public
 const getUser = asyncHandler(async (req, res) => {
-  console.log('i am in getUser');
-  console.log('req.user', req.user);
+  console.log("Fetching user details...");
+
   const userId = req.user.id;
-  console.log('userId', userId);
-  const user  = await User.findById(userId);
-  if (user) {
-    console.log('user found in getUser');
+
+  try {
+    const user = await User.findById(userId)
+      .populate({
+        path: "village", // Use "village" instead of "village_id"
+        populate: {
+          path: "taluka_id",
+          populate: { path: "district_id" },
+        },
+      });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    console.log("User found:", user);
+
     res.status(200).json({
-      message: "User found",
-      user
+      message: "User details fetched successfully",
+      user,
     });
-  } else {
-    res.status(404);
-    throw new Error("User not found");
-  } 
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
+
+
+
+
 
 //@desc Create a user
 //@route POST /api/user

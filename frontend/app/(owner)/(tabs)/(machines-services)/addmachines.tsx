@@ -9,6 +9,7 @@ import {
   TextInput,
   Image,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
@@ -53,6 +54,7 @@ const AddMachineForm = () => {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedTaluka, setSelectedTaluka] = useState("");
   const [fileType, setFileType] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Machine fields
   const [formData, setFormData] = useState({
@@ -88,6 +90,7 @@ const AddMachineForm = () => {
       }
     } catch (error) {
       console.error("Error picking image:", error);
+      Alert.alert("Error", "Failed to pick image. Please try again.");
     }
   };
 
@@ -145,93 +148,111 @@ const AddMachineForm = () => {
   };
 
   const validateForm = () => {
-    // Add your form validation logic here
-    // Return true if the form is valid, otherwise return false
+    if (
+      !formData.name ||
+      !formData.model ||
+      !formData.description ||
+      !formData.yearOfMfg ||
+      !formData.rentalCost ||
+      !formData.rentalUnit ||
+      !selectedDistrict ||
+      !selectedTaluka ||
+      selectedVillages.length === 0
+    ) {
+      Alert.alert("Error", "Please fill all required fields.");
+      return false;
+    }
     return true;
   };
 
   const handleSubmit = async () => {
-    if (validateForm()) {
-      try {
-        const token = await AsyncStorage.getItem("token");
+    if (!validateForm()) return;
 
-        if (!token) {
-          Alert.alert("Error", "Authentication token missing. Please sign in.");
-          router.replace("/(auth)/sign-in");
-          return;
-        }
+    setIsSubmitting(true);
 
-        let uploadedImageUrl: string | null = null;
+    try {
+      const token = await AsyncStorage.getItem("token");
 
-        // Upload image if selected
-        if (formData.images?.length > 0) {
-          try {
-            const imageUri = formData.images[0];
-            const fileName = `product-images/${Date.now()}.${fileType}`;
+      if (!token) {
+        Alert.alert("Error", "Authentication token missing. Please sign in.");
+        router.replace("/(auth)/sign-in");
+        return;
+      }
 
-            const uploadResponse = await axios.post(
-              `${constants.base_url}/api/image/upload`,
-              { key: fileName, contentType: `image/${fileType}` }
-            );
+      let uploadedImageUrl: string | null = null;
 
-            if (!uploadResponse.data.uploadUrl) {
-              throw new Error("Failed to retrieve pre-signed upload URL");
-            }
+      // Upload image if selected
+      if (formData.images?.length > 0) {
+        try {
+          const imageUri = formData.images[0];
+          const fileName = `machine-images/${Date.now()}.${fileType}`;
 
-            const { uploadUrl } = uploadResponse.data;
-
-            // Fetch the image file and convert it to a blob
-            const response = await fetch(imageUri);
-            const blob = await response.blob();
-
-            const imageResponse = await fetch(uploadUrl, {
-              method: "PUT",
-              headers: { "Content-Type": `image/${fileType}` },
-              body: blob,
-            });
-
-            if (!imageResponse.ok) {
-              throw new Error(
-                `Failed to upload image: ${imageResponse.statusText}`
-              );
-            }
-
-            // Extract the uploaded image URL
-            uploadedImageUrl = uploadUrl.split("?")[0];
-            console.log("Uploaded image URL:", uploadedImageUrl);
-          } catch (uploadError) {
-            console.error("Error uploading product image:", uploadError);
-            throw new Error("Product image upload failed");
-          }
-
-          const MachineData = {
-            ...formData,
-            operatingArea: selectedVillages.map((village) => village._id), // Include selected village IDs
-          };
-
-          console.log("MachineData", MachineData);
-
-          // Send the machine data to the server
-          const response = await axios.post(
-            `${constants.base_url}/api/machine/add`,
-            MachineData,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
+          const uploadResponse = await axios.post(
+            `${constants.base_url}/api/image/upload`,
+            { key: fileName, contentType: `image/${fileType}` }
           );
 
-          if (response.data.success) {
-            Alert.alert("Success", "Machine added successfully");
-          } else {
-            Alert.alert("Error", "Failed to add machine. Please try again.");
+          if (!uploadResponse.data.uploadUrl) {
+            throw new Error("Failed to retrieve pre-signed upload URL");
           }
+
+          const { uploadUrl } = uploadResponse.data;
+
+          // Fetch the image file and convert it to a blob
+          const response = await fetch(imageUri);
+          const blob = await response.blob();
+
+          const imageResponse = await fetch(uploadUrl, {
+            method: "PUT",
+            headers: { "Content-Type": `image/${fileType}` },
+            body: blob,
+          });
+
+          if (!imageResponse.ok) {
+            throw new Error(
+              `Failed to upload image: ${imageResponse.statusText}`
+            );
+          }
+
+          // Extract the uploaded image URL
+          uploadedImageUrl = uploadUrl.split("?")[0];
+          console.log("Uploaded image URL:", uploadedImageUrl);
+        } catch (uploadError) {
+          console.error("Error uploading machine image:", uploadError);
+          throw new Error("Machine image upload failed");
         }
-      } catch (error) {
-        console.error("Error adding machine:", error);
+      }
+
+      const machineData = {
+        ...formData,
+        images: uploadedImageUrl ? [uploadedImageUrl] : [],
+        operatingArea: selectedVillages.map((village) => village._id), // Include selected village IDs
+      };
+
+      console.log("MachineData", machineData);
+
+      // Send the machine data to the server
+      const response = await axios.post(
+        `${constants.base_url}/api/machine/add`,
+        machineData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        Alert.alert("Success", "Machine added successfully");
+        router.back(); // Navigate back after successful submission
+      } else {
         Alert.alert("Error", "Failed to add machine. Please try again.");
       }
+    } catch (error) {
+      console.error("Error adding machine:", error);
+      Alert.alert("Error", "Failed to add machine. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -425,8 +446,13 @@ const AddMachineForm = () => {
         <TouchableOpacity
           className="bg-green-500 mt-6 p-3 rounded-lg items-center"
           onPress={handleSubmit}
+          disabled={isSubmitting}
         >
-          <Text className="text-white font-bold">Add Machine</Text>
+          {isSubmitting ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text className="text-white font-bold">Add Machine</Text>
+          )}
         </TouchableOpacity>
       </View>
     </ScrollView>

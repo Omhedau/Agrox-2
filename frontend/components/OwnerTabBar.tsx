@@ -89,7 +89,7 @@ const OwnerTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 
 const styles = StyleSheet.create({
   tabbar: {
-    position: "absolute",
+    marginTop: 4,
     bottom: 2,
     flexDirection: "row",
     justifyContent: "space-between",

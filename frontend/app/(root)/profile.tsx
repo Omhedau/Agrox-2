@@ -91,7 +91,7 @@ const Profile = () => {
         <Text className="text-lg font-semibold text-gray-800 mb-4">
           Actions
         </Text>
-        <View className="bg-white rounded-lg shadow-md p-4 space-y-4">
+        <View className="bg-white rounded-lg shadow-md p-4 space-y-4 mb-10">
           <TouchableOpacity
             className="flex-row items-center p-2 bg-gray-100 mb-2 rounded-lg"
             onPress={() => console.log("Navigating to Edit Profile")}

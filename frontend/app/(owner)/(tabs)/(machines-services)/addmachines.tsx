@@ -76,12 +76,16 @@ const AddMachineForm = () => {
           <TextInput
             className="mb-6 p-4 bg-gray-200 px-3 rounded-2xl"
             placeholder="Machine Description"
+            multiline
+            numberOfLines={3}
             value={formData.description}
             onChangeText={(text) =>
               setFormData((prev) => ({ ...prev, description: text }))
             }
             style={{
               color: "black",
+              height: 100,
+              textAlignVertical: "top",
               boxShadow: "inset 5px 5px 10px rgba(0, 0, 0, 0.1)",
             }}
           />

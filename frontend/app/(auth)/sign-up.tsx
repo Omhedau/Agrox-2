@@ -67,10 +67,7 @@ const SignUp = () => {
     const userDetails = {
       ...rest,
       name: fullName,
-      village: {
-        village_name: formData.village.village_name,
-        village_id: formData.village.village_id, // Include village_id in the submission
-      },
+      village: formData.village.village_id,
     };
 
     signUp(userDetails);

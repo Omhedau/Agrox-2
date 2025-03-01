@@ -5,10 +5,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Image,
 } from "react-native";
 import { useState } from "react";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
+import * as DocumentPicker from "expo-document-picker";
 
 const AddMachineForm = () => {
   const [formData, setFormData] = useState({
@@ -25,7 +27,41 @@ const AddMachineForm = () => {
     documents: [] as string[],
   });
 
+  const [fileType, setFileType] = useState("");
+
   const rentalUnits = ["Hour", "Day", "Week", "Month", "Year"];
+
+  const pickImage = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "image/*", // Allow all image types
+      });
+
+      if (result.assets && result.assets.length > 0) {
+        const file = result.assets[0];
+        setFileType(file.name.split(".").pop() || ""); // Get file extension or default to empty string
+
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          images: [file.uri], // Store the image URI
+        }));
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      images: prevFormData.images.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleImageClick = () => {
+    // If an image is already selected, allow re-picking
+    pickImage();
+  };
 
   const handleSubmit = () => {
     console.log(formData);
@@ -90,6 +126,42 @@ const AddMachineForm = () => {
             }}
           />
 
+          <Text className="text-primary-500 mb-2">Machine images</Text>
+
+          {formData.images.length > 0 ? (
+            <View className="mb-6">
+              {formData.images.map((imageUri, index) => (
+                <View key={index} className="mb-4 relative">
+                  <TouchableOpacity onPress={handleImageClick}>
+                    <Image
+                      source={{ uri: imageUri }}
+                      style={{ width: "100%", height: 200, borderRadius: 10 }}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => removeImage(index)}
+                    style={styles.removeIcon}
+                  >
+                    <Ionicons name="close-circle" size={24} color="red" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <TouchableOpacity
+              className="bg-gray-200 p-4 rounded-2xl mb-6 items-center flex-row justify-center"
+              onPress={pickImage}
+            >
+              <Ionicons
+                name="cloud-upload-outline"
+                size={24}
+                color="gray"
+                style={{ marginRight: 8 }}
+              />
+              <Text className="text-gray-500">Add Images</Text>
+            </TouchableOpacity>
+          )}
+
           <Text className="text-primary-500 mb-2">Year of Manufacture</Text>
           <TextInput
             className="mb-6 p-4 bg-gray-200 px-3 rounded-2xl"
@@ -140,7 +212,8 @@ const AddMachineForm = () => {
           <Text className="text-primary-500 mb-2">Rental Cost</Text>
           <TextInput
             className="mb-6 p-4 bg-gray-200 px-3 rounded-2xl"
-            placeholder=""
+            placeholder=" rental cost"
+            keyboardType="number-pad"
             value={formData.rentalCost}
             onChangeText={(text) =>
               setFormData((prev) => ({ ...prev, rentalCost: text }))
@@ -181,6 +254,14 @@ const styles = StyleSheet.create({
     right: 10,
     top: 12,
     pointerEvents: "none",
+  },
+  removeIcon: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 4,
   },
   requiredStar: {
     color: "red",

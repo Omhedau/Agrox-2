@@ -19,7 +19,11 @@ import constants from "@/constants/data";
 const SignUp = () => {
   const { mobile } = useLocalSearchParams();
   const mobileNumber = Array.isArray(mobile) ? mobile[0] : mobile;
-  const [villages, setVillages] = useState([]);
+  interface Village {
+    village_name: string;
+  }
+
+  const [villages, setVillages] = useState<Village[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,7 +36,7 @@ const SignUp = () => {
     mobile: mobileNumber || "",
     gender: "Male",
     lang: "English",
-    village: {},
+    village: { village_name: "" },
   });
 
   const districts = ["Pune"];
@@ -277,42 +281,54 @@ const SignUp = () => {
           ) : error ? (
             <Text className="text-red-500 font-rubik mb-2">{error}</Text>
           ) : villages.length > 0 ? (
-            <View
-              className="border border-gray-300 rounded-lg mb-4 overflow-hidden"
-              style={styles.pickerContainer}
-            >
-              <Picker
-                selectedValue={formData.village}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    village: value,
-                  })
-                }
-                style={styles.picker}
-                dropdownIconColor="#4A5568"
-                mode="dropdown"
+            <View>
+              <Text className="text-gray-700 font-rubik mb-2">
+                Village{" "}
+                <Text style={styles.requiredStar} className="text-lg">
+                  *
+                </Text>
+              </Text>
+              <View
+                className="border border-gray-300 rounded-lg mb-4 overflow-hidden"
+                style={styles.pickerContainer}
               >
-                <Picker.Item
-                  style={{ color: "#A0AEC0" }}
-                  label="Select village"
-                  value=""
-                />
-                {villages.map((village) => (
+                <Picker
+                  selectedValue={formData.village.village_name}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      village: { village_name: value },
+                    })
+                  }
+                  style={styles.picker}
+                  dropdownIconColor="#4A5568"
+                  mode="dropdown"
+                >
                   <Picker.Item
-                    key={village}
-                    label={village}
-                    value={village}
-                    color={formData.village === village ? "green" : "black"}
+                    style={{ color: "#A0AEC0" }}
+                    label="Select village"
+                    value=""
                   />
-                ))}
-              </Picker>
-              <View style={styles.dropdownIcon}>
-                <MaterialIcons
-                  name="arrow-drop-down"
-                  size={24}
-                  color="#4A5568"
-                />
+                  {villages.map((village) => (
+                    <Picker.Item
+                      key={village.village_name}
+                      label={village.village_name}
+                      value={village.village_name}
+                      color={
+                        formData.village.village_name === village.village_name
+                          ? "green"
+                          : "black"
+                      }
+                    />
+                  ))}
+                </Picker>
+                <View style={styles.dropdownIcon}>
+                  <MaterialIcons
+                    name="arrow-drop-down"
+                    size={24}
+                    color="#4A5568"
+                  />
+                </View>
               </View>
             </View>
           ) : null}

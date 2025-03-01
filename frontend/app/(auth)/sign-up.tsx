@@ -19,7 +19,9 @@ import constants from "@/constants/data";
 const SignUp = () => {
   const { mobile } = useLocalSearchParams();
   const mobileNumber = Array.isArray(mobile) ? mobile[0] : mobile;
+
   interface Village {
+    _id: string; // village_id
     village_name: string;
   }
 
@@ -36,7 +38,7 @@ const SignUp = () => {
     mobile: mobileNumber || "",
     gender: "Male",
     lang: "English",
-    village: { village_name: "" },
+    village: { village_name: "", village_id: "" }, // Updated to include village_id
   });
 
   const districts = ["Pune"];
@@ -62,7 +64,14 @@ const SignUp = () => {
   const handleSubmit = () => {
     const fullName = `${formData.firstName} ${formData.lastName}`;
     const { firstName, lastName, ...rest } = formData;
-    const userDetails = { ...rest, name: fullName };
+    const userDetails = {
+      ...rest,
+      name: fullName,
+      village: {
+        village_name: formData.village.village_name,
+        village_id: formData.village.village_id, // Include village_id in the submission
+      },
+    };
 
     signUp(userDetails);
   };
@@ -85,7 +94,7 @@ const SignUp = () => {
         }
       );
       const data = response.data;
-      setVillages(data.villages);
+      setVillages(data.villages); // Assuming the backend returns an array of village objects
     } catch (error) {
       console.error("Error fetching villages:", error);
       setError("Failed to fetch villages. Please try again.");
@@ -294,12 +303,18 @@ const SignUp = () => {
               >
                 <Picker
                   selectedValue={formData.village.village_name}
-                  onValueChange={(value) =>
+                  onValueChange={(value) => {
+                    const selectedVillage = villages.find(
+                      (village) => village.village_name === value
+                    );
                     setFormData({
                       ...formData,
-                      village: { village_name: value },
-                    })
-                  }
+                      village: {
+                        village_name: selectedVillage?.village_name || "",
+                        village_id: selectedVillage?._id || "", // Set village_id
+                      },
+                    });
+                  }}
                   style={styles.picker}
                   dropdownIconColor="#4A5568"
                   mode="dropdown"
@@ -311,7 +326,7 @@ const SignUp = () => {
                   />
                   {villages.map((village) => (
                     <Picker.Item
-                      key={village.village_name}
+                      key={village._id}
                       label={village.village_name}
                       value={village.village_name}
                       color={

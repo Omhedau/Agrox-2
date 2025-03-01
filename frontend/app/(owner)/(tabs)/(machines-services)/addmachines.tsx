@@ -1,18 +1,49 @@
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Image,
+  TouchableOpacity,
+  FlatList,
+  TextInput,
 } from "react-native";
-import { useState } from "react";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import * as DocumentPicker from "expo-document-picker";
+import constants from "@/constants/data";
+import axios from "axios";
 
 const AddMachineForm = () => {
+  const districts = ["Pune"];
+  const talukas = [
+    "Haveli",
+    "Maval",
+    "Mulshi",
+    "Junnar",
+    "Ambegaon",
+    "Khed",
+    "Shirur",
+    "Daund",
+    "Purandar",
+    "Velhe",
+    "Bhor",
+    "Indapur",
+    "Baramati",
+  ];
+
+  interface Village {
+    _id: string;
+    village_name: string;
+  }
+
+  const [villages, setVillages] = useState<Village[]>([]);
+  const [selectedVillages, setSelectedVillages] = useState<Village[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedTaluka, setSelectedTaluka] = useState("");
+
+  // Machine fields
   const [formData, setFormData] = useState({
     name: "",
     model: "",
@@ -27,210 +58,206 @@ const AddMachineForm = () => {
     documents: [] as string[],
   });
 
-  const [fileType, setFileType] = useState("");
-
   const rentalUnits = ["Hour", "Day", "Week", "Month", "Year"];
 
-  const pickImage = async () => {
+  const getVillages = async () => {
+    if (!selectedDistrict || !selectedTaluka) {
+      setVillages([]);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
     try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: "image/*", // Allow all image types
+      const response = await axios.post(`${constants.base_url}/api/get-villages`, {
+        district_name: selectedDistrict,
+        taluka_name: selectedTaluka,
       });
-
-      if (result.assets && result.assets.length > 0) {
-        const file = result.assets[0];
-        setFileType(file.name.split(".").pop() || ""); // Get file extension or default to empty string
-
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          images: [file.uri], // Store the image URI
-        }));
-      }
+      setVillages(response.data.villages);
     } catch (error) {
-      console.error("Error picking image:", error);
+      console.error("Error fetching villages:", error);
+      setError("Failed to fetch villages. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const removeImage = (index: number) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      images: prevFormData.images.filter((_, i) => i !== index),
-    }));
+  useEffect(() => {
+    getVillages();
+    setSelectedVillages([]); // Reset selected villages when taluka/district changes
+  }, [selectedDistrict, selectedTaluka]);
+
+  const toggleVillageSelection = (village: Village) => {
+    setSelectedVillages((prev) => {
+      const isSelected = prev.find((v) => v._id === village._id);
+      if (isSelected) {
+        return prev.filter((v) => v._id !== village._id); // Remove if already selected
+      }
+      return [...prev, village]; // Add if not selected
+    });
   };
 
-  const handleImageClick = () => {
-    // If an image is already selected, allow re-picking
-    pickImage();
-  };
+  const handleSubmit = async () => {
 
-  const handleSubmit = () => {
-    console.log(formData);
+    const payload = {
+      ...formData,
+      villages: selectedVillages.map((village) => village._id), // Include selected village IDs
+    };
+
+    console.log("Submitting machine:", payload);
+
+    try {
+      const response = await axios.post(`${constants.base_url}/api/add-machine`, payload);
+      console.log("Machine added successfully:", response.data);
+      // Reset form after successful submission
+      setFormData({
+        name: "",
+        model: "",
+        description: "",
+        yearOfMfg: "",
+        rentalStart: "",
+        rentalEnd: "",
+        operatingArea: "",
+        rentalCost: "",
+        rentalUnit: "",
+        images: [],
+        documents: [],
+      });
+      setSelectedVillages([]);
+      setSelectedDistrict("");
+      setSelectedTaluka("");
+    } catch (error) {
+      console.error("Error adding machine:", error);
+    }
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
-      keyboardShouldPersistTaps="handled"
-    >
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
       <View className="flex-1 bg-white px-6 py-10">
-        <View className="flex-row justify-center items-center mb-4">
-          <Text className="text-primary-500 font-bold text-2xl mr-2">
-            Add Machine
-          </Text>
-          <Ionicons name="add-circle-outline" size={28} color="#4CAF50" />
-        </View>
-        <View className="space-y-4">
-          <Text className="text-primary-500 mb-2">Machine Details</Text>
-          <TextInput
-            className="mb-6 p-4 bg-gray-200 px-3 rounded-2xl"
-            placeholder="Machine Name"
-            value={formData.name}
-            onChangeText={(text) =>
-              setFormData((prev) => ({ ...prev, name: text }))
-            }
-            style={{
-              color: "black",
-              boxShadow: "inset 5px 5px 10px rgba(0, 0, 0, 0.1)",
-            }}
-          />
+        {/* Machine Details */}
+        <Text className="text-primary-500 font-bold text-2xl mb-4">Add Machine</Text>
 
-          <Text className="text-primary-500 mb-2">Machine Model</Text>
-          <TextInput
-            className="mb-6 p-4 bg-gray-200 px-3 rounded-2xl"
-            placeholder="Machine Model"
-            value={formData.model}
-            onChangeText={(text) =>
-              setFormData((prev) => ({ ...prev, model: text }))
-            }
-            style={{
-              color: "black",
-              boxShadow: "inset 5px 5px 10px rgba(0, 0, 0, 0.1)",
-            }}
-          />
+        {/* Machine Name */}
+        <Text className="text-gray-700 font-rubik mb-2">Machine Name</Text>
+        <TextInput
+          className="mb-4 p-3 bg-gray-100 rounded-lg"
+          placeholder="Enter machine name"
+          value={formData.name}
+          onChangeText={(text) => setFormData({ ...formData, name: text })}
+        />
 
-          <Text className="text-primary-500 mb-2">Machine Description</Text>
-          <TextInput
-            className="mb-6 p-4 bg-gray-200 px-3 rounded-2xl"
-            placeholder="Machine Description"
-            multiline
-            numberOfLines={3}
-            value={formData.description}
-            onChangeText={(text) =>
-              setFormData((prev) => ({ ...prev, description: text }))
-            }
-            style={{
-              color: "black",
-              height: 100,
-              textAlignVertical: "top",
-              boxShadow: "inset 5px 5px 10px rgba(0, 0, 0, 0.1)",
-            }}
-          />
+        {/* Machine Model */}
+        <Text className="text-gray-700 font-rubik mb-2">Machine Model</Text>
+        <TextInput
+          className="mb-4 p-3 bg-gray-100 rounded-lg"
+          placeholder="Enter machine model"
+          value={formData.model}
+          onChangeText={(text) => setFormData({ ...formData, model: text })}
+        />
 
-          <Text className="text-primary-500 mb-2">Machine images</Text>
+        {/* Machine Description */}
+        <Text className="text-gray-700 font-rubik mb-2">Machine Description</Text>
+        <TextInput
+          className="mb-4 p-3 bg-gray-100 rounded-lg"
+          placeholder="Enter machine description"
+          multiline
+          numberOfLines={3}
+          value={formData.description}
+          onChangeText={(text) => setFormData({ ...formData, description: text })}
+        />
 
-          {formData.images.length > 0 ? (
-            <View className="mb-6">
-              {formData.images.map((imageUri, index) => (
-                <View key={index} className="mb-4 relative">
-                  <TouchableOpacity onPress={handleImageClick}>
-                    <Image
-                      source={{ uri: imageUri }}
-                      style={{ width: "100%", height: 200, borderRadius: 10 }}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => removeImage(index)}
-                    style={styles.removeIcon}
-                  >
-                    <Ionicons name="close-circle" size={24} color="red" />
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          ) : (
-            <TouchableOpacity
-              className="bg-gray-200 p-4 rounded-2xl mb-6 items-center flex-row justify-center"
-              onPress={pickImage}
-            >
-              <Ionicons
-                name="cloud-upload-outline"
-                size={24}
-                color="gray"
-                style={{ marginRight: 8 }}
-              />
-              <Text className="text-gray-500">Add Images</Text>
-            </TouchableOpacity>
-          )}
+        {/* Year of Manufacture */}
+        <Text className="text-gray-700 font-rubik mb-2">Year of Manufacture</Text>
+        <TextInput
+          className="mb-4 p-3 bg-gray-100 rounded-lg"
+          placeholder="Enter year of manufacture"
+          value={formData.yearOfMfg}
+          onChangeText={(text) => setFormData({ ...formData, yearOfMfg: text })}
+        />
 
-          <Text className="text-primary-500 mb-2">Year of Manufacture</Text>
-          <TextInput
-            className="mb-6 p-4 bg-gray-200 px-3 rounded-2xl"
-            placeholder=" 2023-12-31"
-            value={formData.yearOfMfg}
-            onChangeText={(text) =>
-              setFormData((prev) => ({ ...prev, yearOfMfg: text }))
-            }
-            style={{
-              color: "black",
-              boxShadow: "inset 5px 5px 10px rgba(0, 0, 0, 0.1)",
-            }}
-          />
+        {/* Rental Details */}
+        <Text className="text-gray-700 font-rubik mb-2">Rental Cost</Text>
+        <TextInput
+          className="mb-4 p-3 bg-gray-100 rounded-lg"
+          placeholder="Enter rental cost"
+          keyboardType="numeric"
+          value={formData.rentalCost}
+          onChangeText={(text) => setFormData({ ...formData, rentalCost: text })}
+        />
 
-          <Text className="text-primary-500 mb-2">Rental Unit</Text>
-          <View
-            className="border border-gray-300 rounded-lg mb-4 overflow-hidden"
-            style={styles.pickerContainer}
+        <Text className="text-gray-700 font-rubik mb-2">Rental Unit</Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={formData.rentalUnit}
+            onValueChange={(itemValue) => setFormData({ ...formData, rentalUnit: itemValue })}
+            style={styles.picker}
           >
-            <Picker
-              selectedValue={formData.rentalUnit}
-              onValueChange={(itemValue) =>
-                setFormData({ ...formData, rentalUnit: itemValue as string })
-              }
-              style={styles.picker}
-              dropdownIconColor="#4A5568"
-              mode="dropdown"
-            >
-              <Picker.Item
-                style={{ color: "#A0AEC0", height: 50 }}
-                label="Select rental unit"
-                value=""
-              />
-              {rentalUnits.map((unit) => (
-                <Picker.Item
-                  key={unit}
-                  label={unit}
-                  value={unit}
-                  color={formData.rentalUnit === unit ? "green" : "black"}
-                />
-              ))}
-            </Picker>
-            <View style={styles.dropdownIcon}>
-              <MaterialIcons name="arrow-drop-down" size={24} color="#4A5568" />
-            </View>
+            <Picker.Item label="Select rental unit" value="" />
+            {rentalUnits.map((unit) => (
+              <Picker.Item key={unit} label={unit} value={unit} />
+            ))}
+          </Picker>
+        </View>
+
+        {/* District Selection */}
+        <Text className="text-gray-700 font-rubik mb-2">District</Text>
+        <View style={styles.pickerContainer}>
+          <Picker selectedValue={selectedDistrict} onValueChange={setSelectedDistrict} style={styles.picker}>
+            <Picker.Item label="Select district" value="" />
+            {districts.map((district) => (
+              <Picker.Item key={district} label={district} value={district} />
+            ))}
+          </Picker>
+        </View>
+
+        {/* Taluka Selection */}
+        <Text className="text-gray-700 font-rubik mb-2">Taluka</Text>
+        <View style={styles.pickerContainer}>
+          <Picker selectedValue={selectedTaluka} onValueChange={setSelectedTaluka} style={styles.picker}>
+            <Picker.Item label="Select taluka" value="" />
+            {talukas.map((taluka) => (
+              <Picker.Item key={taluka} label={taluka} value={taluka} />
+            ))}
+          </Picker>
+        </View>
+
+        {/* Village Selection */}
+        {loading ? (
+          <Text className="text-gray-700 font-rubik mb-2">Loading villages...</Text>
+        ) : error ? (
+          <Text className="text-red-500 font-rubik mb-2">{error}</Text>
+        ) : villages.length > 0 ? (
+          <View>
+            <Text className="text-gray-700 font-rubik mb-2">Villages</Text>
+            <FlatList
+              data={villages}
+              keyExtractor={(item) => item._id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.villageItem,
+                    selectedVillages.some((v) => v._id === item._id) && styles.selectedVillage,
+                  ]}
+                  onPress={() => toggleVillageSelection(item)}
+                >
+                  <Text style={styles.villageText}>{item.village_name}</Text>
+                  {selectedVillages.some((v) => v._id === item._id) && (
+                    <MaterialIcons name="check-circle" size={20} color="green" />
+                  )}
+                </TouchableOpacity>
+              )}
+            />
           </View>
+        ) : null}
 
-          <Text className="text-primary-500 mb-2">Rental Cost</Text>
-          <TextInput
-            className="mb-6 p-4 bg-gray-200 px-3 rounded-2xl"
-            placeholder=" rental cost"
-            keyboardType="number-pad"
-            value={formData.rentalCost}
-            onChangeText={(text) =>
-              setFormData((prev) => ({ ...prev, rentalCost: text }))
-            }
-            style={{
-              color: "black",
-              boxShadow: "inset 5px 5px 10px rgba(0, 0, 0, 0.1)",
-            }}
-          />
-
-          <TouchableOpacity
-            className="bg-green-500 mt-10 p-3 rounded-lg items-center"
-            onPress={handleSubmit}
-          >
-            <Text className="text-white font-bold">Add</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Submit Button */}
+        <TouchableOpacity
+          className="bg-green-500 mt-6 p-3 rounded-lg items-center"
+          onPress={handleSubmit}
+        >
+          <Text className="text-white font-bold">Add Machine</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -238,38 +265,31 @@ const AddMachineForm = () => {
 
 const styles = StyleSheet.create({
   pickerContainer: {
-    position: "relative",
-    backgroundColor: "#F7FAFC",
     borderWidth: 1,
     borderColor: "#E2E8F0",
     borderRadius: 8,
+    backgroundColor: "#F7FAFC",
+    marginBottom: 10,
   },
   picker: {
     width: "100%",
     height: 50,
     color: "#1A202C",
   },
-  dropdownIcon: {
-    position: "absolute",
-    right: 10,
-    top: 12,
-    pointerEvents: "none",
+  villageItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: "#E2E8F0",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  removeIcon: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    backgroundColor: "white",
-    borderRadius: 12,
-    padding: 4,
+  villageText: {
+    fontSize: 16,
+    color: "#1A202C",
   },
-  requiredStar: {
-    color: "red",
-  },
-  errorText: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 8,
+  selectedVillage: {
+    backgroundColor: "#E6FFFA",
   },
 });
 

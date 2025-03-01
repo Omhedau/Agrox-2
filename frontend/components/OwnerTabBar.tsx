@@ -5,7 +5,7 @@ import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 const OwnerTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const text_primaryColor = "#2C7F30"; // Dark Green
-  const primaryColor = "#4ADE80"; // Light Green (Active)
+  const primaryColor="#4ADE80"; // Light Green (Active)
   const primaryColor_400 = "#32C338";
   const greyColor = "#737373"; // Gray (Inactive)
 

@@ -11,7 +11,7 @@ const {sendSms} = require("../services/smsService");
 
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user._id, name: user.name, mobile: user.mobile },
+    { id: user._id, name: user.name, mobile: user.mobile, village:user.village },
     process.env.JWT_SECRET,
     { expiresIn: "30d" }
   );

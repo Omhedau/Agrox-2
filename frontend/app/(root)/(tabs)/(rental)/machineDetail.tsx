@@ -110,7 +110,7 @@ const MachineDetail = () => {
         <TouchableOpacity
           onPress={() =>
             router.push({
-              pathname: "/machineconfirm",
+              pathname: "/(root)/(tabs)/(rental)/machines",
               params: { machine: JSON.stringify(machine) },
             })
           }

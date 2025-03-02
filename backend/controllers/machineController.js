@@ -21,6 +21,66 @@ const getCategories = asyncHandler(async (req, res) => {
 //@desc Get All machines
 //@route GET /api/machine/all
 //@access Public
+const getMachinesAvailableInYourVillage = asyncHandler(async (req, res) => {
+  console.log("Fetching available machines in user's village...");
+
+  try {
+    const userVillageId = req.user.village; // Assuming user's village ID is stored in req.user
+    console.log(`[DEBUG] - User's Village ID: ${userVillageId}`);
+
+    if (!userVillageId) {
+      return res.status(400).json({ message: "User's village ID is required" });
+    }
+
+    // Fetch machines that have the user's village in their operatingArea
+    const machines = await Machine.find({ operatingArea: { $in: [userVillageId] } }).populate("ownerId", "name");
+
+
+    if (machines.length > 0) {
+      console.log("[INFO] - Machines found for the user's village");
+      return res.status(200).json({ message: "Machines available", machines });
+    } else {
+      console.warn("[WARN] - No machines found in the user's village");
+      return res.status(404).json({ message: "No machines available in your village" });
+    }
+  } catch (error) {
+    console.error("[ERROR] - Failed to fetch machines:", error.message);
+    return res.status(500).json({ error: "Internal server error", details: error.message });
+  }
+});
+
+
+//@desc Get machines by owner ID
+//@route GET /api/machine/owner/:ownerId
+//@access Public
+const getMachinesByOwner = asyncHandler(async (req, res) => {
+  const ownerId = req.params.ownerId;
+  console.log(`[DEBUG] - Fetching machines for owner ID: ${ownerId}`);
+
+  try {
+    const machines = await Machine.find({ ownerId });
+    console.log("[INFO] - Machines fetched successfully");
+
+    if (machines.length > 0) {
+      res.status(200).json({
+        message: "Machines found",
+        machines
+      });
+    } else {
+      console.warn("[WARN] - No machines found for the owner");
+      res.status(404).json({ message: "No machines found" });
+    }
+  } catch (error) {
+    console.error("[ERROR] - Failed to fetch machines:", error.message);
+    res.status(500).json({ error: "Internal server error", details: error.message });
+  }
+});
+
+
+
+
+
+
 const getMachines = asyncHandler(async (req, res) => {
   const { village, category} = req.body;
   console.log('getMachines');

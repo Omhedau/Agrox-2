@@ -15,21 +15,14 @@ const OwnerTabLayout = () => {
       <Tabs.Screen
         name="(machines-services)"
         options={{
-          title: "machines",
+          title: "add",
           headerShown: false,
         }}
       />
       <Tabs.Screen
-        name="orders"
+        name="urmachines"
         options={{
-          title: "orders",
-          headerShown: false,
-        }}
-      />
-      <Tabs.Screen
-        name="revenue"
-        options={{
-          title: "revenue",
+          title: "Machines",
           headerShown: false,
         }}
       />

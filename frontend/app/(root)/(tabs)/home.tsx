@@ -37,30 +37,6 @@ interface Machine {
 const Home: React.FC = () => {
   const { user } = useUserStore() as { user?: User };
   const router = useRouter();
-  const [machines, setMachines] = useState<Machine[]>([]);
-
-  const getMachinesInVillage = async () => {
-    try {
-      const token = await AsyncStorage.getItem("token");
-      const response = await axios.get(
-        `${constants.base_url}/api/machine/available/village`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const machines = response.data?.machines || [];
-      console.log("Machines gggg:", machines);
-      setMachines(machines);
-    } catch (error) {
-      console.error("Failed to fetch machines:", error);
-    }
-  };
-
-  useEffect(() => {
-    getMachinesInVillage();
-  }, []);
 
   if (!user) {
     return (

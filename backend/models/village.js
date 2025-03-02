@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const VillageSchema = new mongoose.Schema(
   {
     village_name: { type: String, required: true },
+    village_code : { type: String, required: true },
     taluka_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Taluka",
@@ -13,9 +14,7 @@ const VillageSchema = new mongoose.Schema(
       ref: "District",
       required: true,
     },
-    pincode: { type: Number, required: true },
-    latitude: { type: Number, required: true },
-    longitude: { type: Number, required: true },
+   
   },
   { timestamps: true }
 );

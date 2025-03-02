@@ -105,19 +105,56 @@ const getMachines = asyncHandler(async (req, res) => {
 //@route GET /api/machine/:id
 
 
+// const getMachine = asyncHandler(async (req, res) => {
+//   const { id } = req.params;
+//   console.log("[DEBUG] - Request URL:", req.originalUrl);
+//   console.log("[DEBUG] - Request params:", req.params);
+//   console.log(`[DEBUG] - Fetching machine details for ID: ${id}`);
+
+//   // Validate MongoDB ObjectId format
+  
+//   try {
+//     const machine = await Machine.findById(id);
+
+//     if (!machine) {
+//       console.warn(`[WARN] - Machine not found for ID: ${machineId}`);
+//       return res.status(404).json({ message: "Machine not found" });
+//     }
+
+//     console.log("[INFO] - Machine found:", machine);
+//     res.status(200).json({
+//       message: "Machine found successfully",
+//       machine,
+//     });
+//   } catch (error) {
+//     console.error("[ERROR] - Failed to fetch machine details:", error.message);
+//     res.status(500).json({
+//       error: "Internal server error",
+//       details: error.message,
+//     });
+//   }
+// });
+
+
 const getMachine = asyncHandler(async (req, res) => {
   const { id } = req.params;
   console.log("[DEBUG] - Request URL:", req.originalUrl);
   console.log("[DEBUG] - Request params:", req.params);
   console.log(`[DEBUG] - Fetching machine details for ID: ${id}`);
 
-  // Validate MongoDB ObjectId format
-  
   try {
-    const machine = await Machine.findById(id);
+    // Fetch the machine and populate the ownerId field with user data
+    const machine = await Machine.findById(id).populate({
+      path: "ownerId",
+      select: "name mobile role profile village", // Include fields you want to fetch
+      populate: {
+        path: "village", // Populate the village field in the user document
+        select: "village_name village_code", // Only include village_name and village_code
+      },
+    });
 
     if (!machine) {
-      console.warn(`[WARN] - Machine not found for ID: ${machineId}`);
+      console.warn(`[WARN] - Machine not found for ID: ${id}`);
       return res.status(404).json({ message: "Machine not found" });
     }
 
@@ -134,6 +171,25 @@ const getMachine = asyncHandler(async (req, res) => {
     });
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //@desc Add a machine

@@ -5,6 +5,17 @@ import useUserStore from "@/store/userStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Page = () => {
+
+  const removeToken = async () => {
+    try {
+      await AsyncStorage.removeItem('token');
+      console.log('Token removed successfully');
+    } catch (error) {
+      console.error('Error removing token:', error);
+    }
+  };
+
+ 
   const { getUser } = useUserStore() as { getUser: () => void };
 
   const [isSignedIn, setIsSignedIn] = React.useState<boolean | null>(null); // null indicates loading state

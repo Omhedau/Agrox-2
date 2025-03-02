@@ -103,22 +103,38 @@ const getMachines = asyncHandler(async (req, res) => {
 
 //@desc Get machine details
 //@route GET /api/machine/:id
-//@access Public
+
+
 const getMachine = asyncHandler(async (req, res) => {
-  const machineId = req.params.id;
-  const user = req.user;
-  console.log(user);
-  const machine = await Machine.findById(machineId);
-  if (machine) {
+  const { id } = req.params;
+  console.log("[DEBUG] - Request URL:", req.originalUrl);
+  console.log("[DEBUG] - Request params:", req.params);
+  console.log(`[DEBUG] - Fetching machine details for ID: ${id}`);
+
+  // Validate MongoDB ObjectId format
+  
+  try {
+    const machine = await Machine.findById(id);
+
+    if (!machine) {
+      console.warn(`[WARN] - Machine not found for ID: ${machineId}`);
+      return res.status(404).json({ message: "Machine not found" });
+    }
+
+    console.log("[INFO] - Machine found:", machine);
     res.status(200).json({
-      message: "Machine found",
+      message: "Machine found successfully",
       machine,
     });
-  } else {
-    res.status(404);
-    throw new Error("Machine not found");
+  } catch (error) {
+    console.error("[ERROR] - Failed to fetch machine details:", error.message);
+    res.status(500).json({
+      error: "Internal server error",
+      details: error.message,
+    });
   }
 });
+
 
 //@desc Add a machine
 //@route POST /api/machine

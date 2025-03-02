@@ -50,8 +50,9 @@ const Home: React.FC = () => {
           },
         }
       );
-      console.log("Machines:", response.data);
-      setMachines(response.data);
+      const machines = response.data?.machines || [];
+      console.log("Machines gggg:", machines);
+      setMachines(machines);
     } catch (error) {
       console.error("Failed to fetch machines:", error);
     }
@@ -142,41 +143,7 @@ const Home: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Machines in Village */}
-        <View>
-          <Text className="text-xl font-semibold mb-4">
-            Machines in Your Village
-          </Text>
-          {machines.length > 0 ? (
-            machines.map((machine) => (
-              <View
-                key={machine._id}
-                className="bg-white p-4 mb-4 rounded-xl shadow-md flex-row items-center"
-              >
-                <Image
-                  source={{ uri: machine.image }}
-                  className="w-20 h-20 rounded-md mr-4"
-                  resizeMode="cover"
-                />
-                <View className="flex-1">
-                  <Text className="text-lg font-semibold text-gray-900">
-                    {machine.name}
-                  </Text>
-                  <Text className="text-gray-600">
-                    Village: {machine.village}
-                  </Text>
-                  <Text className="text-indigo-500 font-bold">
-                    ₹{machine.price} / day
-                  </Text>
-                </View>
-              </View>
-            ))
-          ) : (
-            <Text className="text-gray-600">
-              No machines available in your village.
-            </Text>
-          )}
-        </View>
+       
       </ScrollView>
     </SafeAreaView>
   );

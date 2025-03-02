@@ -1,135 +1,78 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
-  ActivityIndicator,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView, ScrollView, View, Text, Image, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from "@expo/vector-icons";
 import constants from "@/constants/data";
-import { router, useLocalSearchParams } from "expo-router";
-
-interface Machine {
-  _id: string;
-  ownerId: string;
-  bookingIds: string[];
-  reviewId: string[];
-  name: string;
-  model: string;
-  description: string;
-  yearOfMfg: number;
-  rentalStart: string;
-  rentalEnd: string;
-  operatingArea: any;
-  rentalCost: any;
-  rentalUnit: "hour" | "day" | "week" | "month" | "hect";
-  images: string[];
-  documents: string[];
-  createdAt: string;
-  updatedAt: string;
-}
+import RentalCarousel from "@/components/RentalCarousel";
 
 const Machines = () => {
-  const [machines, setMachines] = useState<Machine[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { category } = useLocalSearchParams();
+  const router = useRouter();
 
-  const getMachines = async () => {
-    try {
-      const village = "Vadgaon";
-      const response = await axios.post(
-        `${constants.base_url}/api/machine/all`,
-        {
-          village,
-          category,
-        }
-      );
-      setMachines(response.data.machines);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  interface Machine {
+    _id: string;
+    name: string;
+    model: string;
+    yearOfMfg: number;
+    rentalCost: { $numberDecimal: string };
+    rentalUnit: string;
+    images: string[];
+  }
+
+  const [machines, setMachines] = useState<Machine[]>([]);
 
   useEffect(() => {
-    getMachines();
+    const fetchMachines = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        const response = await axios.get(`${constants.base_url}/api/machine/available/village`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setMachines(response.data?.machines || []);
+      } catch (error) {
+        console.error("Error fetching machines:", error);
+      }
+    };
+
+    fetchMachines();
   }, []);
 
-  const handleViewDetails = (MachineId: string) => {
-    router.push({
-      pathname: "/machineDetail",
-      params: { MachineId },
-    });
-  };
-
   return (
-    <ScrollView className="p-4 bg-gray-50">
-      <View className="flex-row items-center mb-6 bg-white p-3 rounded-full shadow-md border border-gray-300">
-        <TextInput
-          placeholder="Search machines..."
-          placeholderTextColor="#9CA3AF"
-          className="flex-1 text-gray-700 px-4"
-        />
-        <TouchableOpacity className="p-2 rounded-full bg-gray-200">
-          <Ionicons name="filter" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-
-      {loading ? (
-        <ActivityIndicator size="large" color="#4F46E5" />
-      ) : machines.length === 0 ? (
-        <Text className="text-center text-gray-600">No machines available</Text>
-      ) : (
-        machines.map((machine) => (
-          <View
-            key={machine._id}
-            className="mb-6 bg-white p-5 rounded-3xl shadow-md border border-gray-200"
-          >
-            <Image
-              source={{
-                uri: `${machine.images[0]}.jpg` || "https://i.imgur.com/yGRjHHH.jpeg",
-              }}
-              className="w-full h-56 rounded-3xl mb-4"
-              resizeMode="cover"
-            />
-            <Text className="text-2xl font-bold text-gray-900 mb-1">
-              {machine.name}
-            </Text>
-            <Text className="text-gray-500 text-sm mb-2">
-              Model: {machine.model}
-            </Text>
-            <Text className="text-gray-600 mb-2">{machine.description}</Text>
-            <Text className="text-gray-700 font-semibold">
-              Year: {machine.yearOfMfg}
-            </Text>
-            <Text className="text-gray-700">
-              Rental Period: {machine.rentalStart} - {machine.rentalEnd}
-            </Text>
-            <Text className="text-gray-700 font-semibold">
-              Rental Cost: ₹
-              {parseFloat(machine.rentalCost.$numberDecimal).toFixed(2)} per{" "}
-              {machine.rentalUnit}
-            </Text>
-
-            <View className="mt-4">
-              <TouchableOpacity
-                onPress={() => handleViewDetails(machine._id)}
-                className="bg-indigo-500 py-3 rounded-2xl shadow-lg"
-              >
-                <Text className="text-white text-center font-semibold text-lg">
-                  View Details
+    <SafeAreaView className="flex-1 bg-gray-100">
+      <ScrollView className="px-4 py-6">
+        <RentalCarousel />
+        <Text className="text-2xl font-bold text-gray-900 mb-4">Available Machines</Text>
+        
+        {machines.length > 0 ? (
+          machines.map((machine) => (
+            <View key={machine._id} className="bg-white rounded-xl shadow-lg mb-4 p-4 flex-row items-center">
+              <Image 
+                source={{ uri: machine.images[0] }} 
+                className="w-24 h-24 rounded-lg mr-4" 
+                resizeMode="cover" 
+              />
+              <View className="flex-1">
+                <Text className="text-lg font-semibold text-gray-900">{machine.name}</Text>
+                <Text className="text-gray-600">Model: {machine.model}</Text>
+                <Text className="text-gray-500">Year: {machine.yearOfMfg}</Text>
+                <Text className="text-indigo-500 font-bold">
+                  ₹{machine.rentalCost.$numberDecimal} / {machine.rentalUnit}
                 </Text>
-              </TouchableOpacity>
+                </View>
+                <TouchableOpacity
+                onPress={() => router.push({ pathname: `/machineDetail`, params: { machineId: machine._id } })} // Expo Router Navigation
+                className="p-2 bg-indigo-500 rounded-full"
+                >
+                <Ionicons name="chevron-forward" size={24} color="#fff" />
+                </TouchableOpacity>
             </View>
-          </View>
-        ))
-      )}
-    </ScrollView>
+          ))
+        ) : (
+          <Text className="text-gray-600">No machines available in your village.</Text>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

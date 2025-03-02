@@ -13,7 +13,9 @@ import constants from "@/constants/data";
 
 const MachineDetail = () => {
   const router = useRouter();
-  const { MachineId } = useLocalSearchParams();
+  const { machineId } = useLocalSearchParams();
+
+  console.log("Machine ID:", machineId);
 
   interface Machine {
     images?: string[];
@@ -21,8 +23,6 @@ const MachineDetail = () => {
     model?: string;
     description?: string;
     yearOfMfg: number;
-    rentalStart?: string;
-    rentalEnd?: string;
     rentalCost?: any;
     rentalUnit?: string;
   }
@@ -34,8 +34,9 @@ const MachineDetail = () => {
     const fetchMachineDetails = async () => {
       try {
         const response = await axios.get(
-          `${constants.base_url}/api/machine/${MachineId}`
+          `${constants.base_url}/api/machine/${machineId}`
         );
+        console.log("Machine details:", response.data.machine);
         setMachine(response.data.machine);
       } catch (error) {
         console.error("Error fetching machine details:", error);
@@ -45,7 +46,7 @@ const MachineDetail = () => {
     };
 
     fetchMachineDetails();
-  }, [MachineId]);
+  }, [machineId]);
 
   if (loading) {
     return (
@@ -70,7 +71,7 @@ const MachineDetail = () => {
       <View className="relative">
         <Image
           source={{
-            uri: `${machine.images?.[0]}.jpg` || "https://via.placeholder.com/600",
+            uri: machine.images && machine.images.length > 0 ? machine.images[0] : "",
           }}
           className="w-full h-80 rounded-b-3xl shadow-lg"
           resizeMode="cover"
@@ -92,12 +93,7 @@ const MachineDetail = () => {
           <Text className="text-gray-800 text-lg">
             🏷️ Year: <Text className="font-medium">{machine.yearOfMfg}</Text>
           </Text>
-          <Text className="text-gray-800 text-lg">
-            📅 Rental Period:{" "}
-            <Text className="font-medium">
-              {machine.rentalStart || "N/A"} - {machine.rentalEnd || "N/A"}
-            </Text>
-          </Text>
+         
           <Text className="text-gray-800 text-lg">
             💰 Rental Cost:{" "}
             <Text className="text-blue-600 font-bold">
@@ -107,17 +103,7 @@ const MachineDetail = () => {
           </Text>
         </View>
 
-        <TouchableOpacity
-          onPress={() =>
-            router.push({
-              pathname: "/(root)/(tabs)/(rental)/machines",
-              params: { machine: JSON.stringify(machine) },
-            })
-          }
-          className="mt-6 bg-blue-600 py-3 rounded-full items-center shadow-md"
-        >
-          <Text className="text-white font-bold text-lg">Book Now</Text>
-        </TouchableOpacity>
+      
 
         <View className="mt-8">
           <Text className="text-2xl font-semibold text-gray-900 mb-4">

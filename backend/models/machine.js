@@ -7,6 +7,7 @@ const MachineSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    Category: { type: String, required: true },
     reviewId: { type: [mongoose.Schema.Types.ObjectId], ref: "Review" },
     name: { type: String, required: true },
     model: { type: String },

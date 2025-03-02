@@ -172,26 +172,6 @@ const getMachine = asyncHandler(async (req, res) => {
   }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //@desc Add a machine
 //@route POST /api/machine
 //@access Private

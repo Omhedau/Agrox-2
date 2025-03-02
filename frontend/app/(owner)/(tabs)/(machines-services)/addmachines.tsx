@@ -42,6 +42,19 @@ const AddMachineForm = () => {
     "Baramati",
   ];
 
+  const categories: string[] = [
+    "Tractor Implements",
+    "Harvesting Machines",
+    "Tillage Equipment",
+    "Sowing and Planting Equipment",
+    "Sprayers and Fertilizer Spreaders",
+    "Irrigation Equipment",
+    "Hay and Forage Equipment",
+    "Land Leveling Equipment",
+    "Threshing and Shelling Equipment",
+    "Transport Equipment",
+  ];
+
   interface Village {
     _id: string;
     village_name: string;
@@ -67,6 +80,7 @@ const AddMachineForm = () => {
     operatingArea: "",
     rentalCost: "",
     rentalUnit: "",
+    category: "",
     images: [] as string[],
     documents: [] as string[],
   });
@@ -246,15 +260,16 @@ const AddMachineForm = () => {
         Alert.alert("Success", "Machine added successfully");
         router.back(); // Navigate back after successful submission
       } else {
-        const errorMessage = response.data.message || "Failed to add machine. Please try again.";
+        const errorMessage =
+          response.data.message || "Failed to add machine. Please try again.";
         Alert.alert("Error", errorMessage);
       }
     } catch (error) {
       console.error("Error adding machine:", error);
       Alert.alert("Error", "Failed to add machine. Please try again.");
-    } finally { 
+    } finally {
       setIsSubmitting(false);
-    }   
+    }
   };
 
   return (
@@ -323,6 +338,36 @@ const AddMachineForm = () => {
           </TouchableOpacity>
         )}
 
+        {/* Machine Category */}
+        <Text className="text-gray-700 font-rubik mb-2">
+          Machine Category
+        </Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={formData.category}
+            onValueChange={(itemValue) =>
+              setFormData({ ...formData, category: itemValue })
+            }
+            style={styles.picker}
+          >
+            <Picker.Item
+              style={{ color: "grey" }}
+              label="Select Machine Category"
+              value=""
+            />
+            {categories.map((category) => (
+              <Picker.Item
+                style={{
+                  color: formData.category === category ? "green" : "black",
+                }}
+                key={category}
+                label={category}
+                value={category}
+              />
+            ))}
+          </Picker>
+        </View>
+
         {/* Machine Description */}
         <Text className="text-gray-700 font-rubik mb-2">
           Machine Description
@@ -370,9 +415,20 @@ const AddMachineForm = () => {
             }
             style={styles.picker}
           >
-            <Picker.Item label="Select rental unit" value="" />
+            <Picker.Item
+              style={{ color: "grey" }}
+              label="Select rental unit"
+              value=""
+            />
             {rentalUnits.map((unit) => (
-              <Picker.Item key={unit} label={unit} value={unit} />
+              <Picker.Item
+                style={{
+                  color: formData.rentalUnit === unit ? "green" : "black",
+                }}
+                key={unit}
+                label={unit}
+                value={unit}
+              />
             ))}
           </Picker>
         </View>
@@ -385,9 +441,20 @@ const AddMachineForm = () => {
             onValueChange={setSelectedDistrict}
             style={styles.picker}
           >
-            <Picker.Item label="Select district" value="" />
+            <Picker.Item
+              style={{ color: "grey" }}
+              label="Select district"
+              value=""
+            />
             {districts.map((district) => (
-              <Picker.Item key={district} label={district} value={district} />
+              <Picker.Item
+                style={{
+                  color: selectedDistrict === district ? "green" : "black",
+                }}
+                key={district}
+                label={district}
+                value={district}
+              />
             ))}
           </Picker>
         </View>
@@ -400,9 +467,20 @@ const AddMachineForm = () => {
             onValueChange={setSelectedTaluka}
             style={styles.picker}
           >
-            <Picker.Item label="Select taluka" value="" />
+            <Picker.Item
+              style={{ color: "grey" }}
+              label="Select taluka"
+              value=""
+            />
             {talukas.map((taluka) => (
-              <Picker.Item key={taluka} label={taluka} value={taluka} />
+              <Picker.Item
+                style={{
+                  color: selectedTaluka === taluka ? "green" : "black",
+                }}
+                key={taluka}
+                label={taluka}
+                value={taluka}
+              />
             ))}
           </Picker>
         </View>
@@ -495,6 +573,9 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 12,
     padding: 4,
+  },
+  requiredStar: {
+    color: "red",
   },
 });
 

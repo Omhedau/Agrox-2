@@ -1,16 +1,19 @@
 const asyncHandler = require("express-async-handler");
 const Machine = require("../models/machine");
+const User = require("../models/user");
 
 //@desc Get All categories
 //@desc GET /api/machine/categories
 //@access Public
 const getCategories = asyncHandler(async (req, res) => {
-  const {village} = req.body;
-  const categories = await Machine.find({ "operatingArea.village": { $in: [village] } }).distinct("name");
+  const { village } = req.body;
+  const categories = await Machine.find({
+    "operatingArea.village": { $in: [village] },
+  }).distinct("name");
   if (categories) {
     res.status(200).json({
       message: "Categories found",
-      categories
+      categories,
     });
   } else {
     res.status(404);
@@ -22,33 +25,34 @@ const getCategories = asyncHandler(async (req, res) => {
 //@route GET /api/machine/all
 //@access Public
 const getMachinesAvailableInYourVillage = asyncHandler(async (req, res) => {
-  console.log("Fetching available machines in user's village...");
+  console.log("Fetching available machines in user's village...", req.user);
 
   try {
-    const userVillageId = req.user.village; // Assuming user's village ID is stored in req.user
-    console.log(`[DEBUG] - User's Village ID: ${userVillageId}`);
+    const userId = req.user.id;
 
-    if (!userVillageId) {
-      return res.status(400).json({ message: "User's village ID is required" });
-    }
+    const user = await User.findById(userId);
 
     // Fetch machines that have the user's village in their operatingArea
-    const machines = await Machine.find({ operatingArea: { $in: [userVillageId] } }).populate("ownerId", "name");
-
+    const machines = await Machine.find({
+      operatingArea: { $in: [user.village] },
+    }).populate("ownerId", "name");
 
     if (machines.length > 0) {
       console.log("[INFO] - Machines found for the user's village");
       return res.status(200).json({ message: "Machines available", machines });
     } else {
       console.warn("[WARN] - No machines found in the user's village");
-      return res.status(404).json({ message: "No machines available in your village" });
+      return res
+        .status(404)
+        .json({ message: "No machines available in your village" });
     }
   } catch (error) {
     console.error("[ERROR] - Failed to fetch machines:", error.message);
-    return res.status(500).json({ error: "Internal server error", details: error.message });
+    return res
+      .status(500)
+      .json({ error: "Internal server error", details: error.message });
   }
 });
-
 
 //@desc Get machines by owner ID
 //@route GET /api/machine/owner/:ownerId
@@ -64,7 +68,7 @@ const getMachinesByOwner = asyncHandler(async (req, res) => {
     if (machines.length > 0) {
       res.status(200).json({
         message: "Machines found",
-        machines
+        machines,
       });
     } else {
       console.warn("[WARN] - No machines found for the owner");
@@ -72,26 +76,24 @@ const getMachinesByOwner = asyncHandler(async (req, res) => {
     }
   } catch (error) {
     console.error("[ERROR] - Failed to fetch machines:", error.message);
-    res.status(500).json({ error: "Internal server error", details: error.message });
+    res
+      .status(500)
+      .json({ error: "Internal server error", details: error.message });
   }
 });
 
-
-
-
-
-
 const getMachines = asyncHandler(async (req, res) => {
-  const { village, category} = req.body;
-  console.log('getMachines');
+  const { village, category } = req.body;
+  console.log("getMachines");
   console.log(village);
-  const machines = await Machine.find(
-    { "operatingArea.village": { $in: [village] }, name: category }
-  ).limit(30);
+  const machines = await Machine.find({
+    "operatingArea.village": { $in: [village] },
+    name: category,
+  }).limit(30);
   if (machines) {
     res.status(200).json({
       message: "Machines found",
-      machines
+      machines,
     });
   } else {
     res.status(404);
@@ -106,20 +108,19 @@ const getMachine = asyncHandler(async (req, res) => {
   const machineId = req.params.id;
   const user = req.user;
   console.log(user);
-  const machine  = await Machine.findById(machineId);
+  const machine = await Machine.findById(machineId);
   if (machine) {
-    
     res.status(200).json({
       message: "Machine found",
-      machine
+      machine,
     });
   } else {
     res.status(404);
     throw new Error("Machine not found");
-  } 
+  }
 });
 
-//@desc Add a machine 
+//@desc Add a machine
 //@route POST /api/machine
 //@access Private
 
@@ -128,12 +129,24 @@ const addMachine = asyncHandler(async (req, res) => {
     const ownerId = req.user?.id;
     const machineData = req.body;
 
-    console.log(`[DEBUG] - Request received to add machine by user: ${ownerId}`);
+    console.log(
+      `[DEBUG] - Request received to add machine by user: ${ownerId}`
+    );
 
     // Validate required fields
-    if (!machineData.name || !machineData.yearOfMfg || !machineData.rentalCost || !machineData.rentalUnit) {
+    if (
+      !machineData.name ||
+      !machineData.yearOfMfg ||
+      !machineData.rentalCost ||
+      !machineData.rentalUnit
+    ) {
       console.error("[ERROR] - Missing required machine details");
-      return res.status(400).json({ error: "Missing required fields: name, yearOfMfg, rentalCost, rentalUnit" });
+      return res
+        .status(400)
+        .json({
+          error:
+            "Missing required fields: name, yearOfMfg, rentalCost, rentalUnit",
+        });
     }
 
     console.log("[INFO] - Valid machine data received, proceeding to save");
@@ -144,7 +157,9 @@ const addMachine = asyncHandler(async (req, res) => {
 
     const createdMachine = await machine.save();
 
-    console.log(`[SUCCESS] - Machine added successfully. Machine ID: ${createdMachine._id}`);
+    console.log(
+      `[SUCCESS] - Machine added successfully. Machine ID: ${createdMachine._id}`
+    );
 
     res.status(201).json({
       message: "Machine added successfully",
@@ -152,12 +167,11 @@ const addMachine = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error("[ERROR] - Failed to add machine:", error.message);
-    res.status(500).json({ error: "Internal server error", details: error.message });
+    res
+      .status(500)
+      .json({ error: "Internal server error", details: error.message });
   }
 });
-
-
-
 
 //@desc Update a machine
 //@route PUT /api/machine/:id
@@ -183,7 +197,6 @@ const updateMachine = asyncHandler(async (req, res) => {
   }
 });
 
-
 //@desc Delete a machine
 //@route DELETE /api/machine/:id
 //@access Private
@@ -200,4 +213,14 @@ const deleteMachine = asyncHandler(async (req, res) => {
     throw new Error("Machine not found");
   }
 });
-module.exports = { getCategories, getMachines, getMachine, addMachine, updateMachine, deleteMachine };
+
+module.exports = {
+  getCategories,
+  getMachines,
+  getMachine,
+  addMachine,
+  updateMachine,
+  deleteMachine,
+  getMachinesAvailableInYourVillage,
+  getMachinesByOwner,
+};

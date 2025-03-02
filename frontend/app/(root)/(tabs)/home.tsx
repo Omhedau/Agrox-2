@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -11,6 +11,9 @@ import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import useUserStore from "@/store/userStore";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import constants from "@/constants/data";
 
 enum UserRole {
   Owner = "Owner",
@@ -23,9 +26,40 @@ interface User {
   role: UserRole;
 }
 
+interface Machine {
+  _id: string;
+  name: string;
+  village: string;
+  price: number;
+  image: string;
+}
+
 const Home: React.FC = () => {
   const { user } = useUserStore() as { user?: User };
   const router = useRouter();
+  const [machines, setMachines] = useState<Machine[]>([]);
+
+  const getMachinesInVillage = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const response = await axios.get(
+        `${constants.base_url}/api/machine/available/village`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Machines:", response.data);
+      setMachines(response.data);
+    } catch (error) {
+      console.error("Failed to fetch machines:", error);
+    }
+  };
+
+  useEffect(() => {
+    getMachinesInVillage();
+  }, []);
 
   if (!user) {
     return (
@@ -106,6 +140,42 @@ const Home: React.FC = () => {
             <Ionicons name="document-text-outline" size={24} color="#4F46E5" />
             <Text className="ml-2 text-gray-900 font-medium">View Schemes</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Machines in Village */}
+        <View>
+          <Text className="text-xl font-semibold mb-4">
+            Machines in Your Village
+          </Text>
+          {machines.length > 0 ? (
+            machines.map((machine) => (
+              <View
+                key={machine._id}
+                className="bg-white p-4 mb-4 rounded-xl shadow-md flex-row items-center"
+              >
+                <Image
+                  source={{ uri: machine.image }}
+                  className="w-20 h-20 rounded-md mr-4"
+                  resizeMode="cover"
+                />
+                <View className="flex-1">
+                  <Text className="text-lg font-semibold text-gray-900">
+                    {machine.name}
+                  </Text>
+                  <Text className="text-gray-600">
+                    Village: {machine.village}
+                  </Text>
+                  <Text className="text-indigo-500 font-bold">
+                    ₹{machine.price} / day
+                  </Text>
+                </View>
+              </View>
+            ))
+          ) : (
+            <Text className="text-gray-600">
+              No machines available in your village.
+            </Text>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

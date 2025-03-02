@@ -1,32 +1,70 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 
 const MachinesServices = () => {
   const router = useRouter();
 
   return (
-    <View className="flex-1 bg-gray-100 p-6">
+    <View style={styles.container}>
       {/* Header */}
-      <Text className="text-2xl font-bold text-gray-800 mb-4">
-        Machines Services
-      </Text>
+      <Text style={styles.header}>Machines Services</Text>
 
       {/* Info Section */}
-      <View className="bg-white p-4 rounded-2xl shadow-md">
-        <Text className="text-lg text-gray-700">
-          Manage and track your machines here.
-        </Text>
+      <View style={styles.infoBox}>
+        <Text style={styles.infoText}>Manage and track your machines here.</Text>
       </View>
 
       {/* Add Machine Button */}
-      <TouchableOpacity
-        className="mt-6 bg-green-500 p-4 rounded-xl shadow-lg items-center"
-        onPress={() => router.push("/addmachines")} // Expo Router Navigation
-      >
-        <Text className="text-white font-semibold text-lg">➕ Add Machine</Text>
+      <TouchableOpacity style={styles.button} onPress={() => router.push("/addmachines")}>
+        <Text style={styles.buttonText}>➕ Add Machine</Text>
       </TouchableOpacity>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F3F4F6",
+    padding: 20,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 16,
+  },
+  infoBox: {
+    backgroundColor: "#FFF",
+    padding: 16,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3, // Android shadow
+  },
+  infoText: {
+    fontSize: 16,
+    color: "#555",
+  },
+  button: {
+    marginTop: 20,
+    backgroundColor: "#28A745",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 5,
+    elevation: 4,
+  },
+  buttonText: {
+    fontSize: 18,
+    color: "#FFF",
+    fontWeight: "600",
+  },
+});
 
 export default MachinesServices;

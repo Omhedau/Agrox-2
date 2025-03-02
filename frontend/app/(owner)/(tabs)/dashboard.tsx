@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-
+import  OwnerAdvertisement  from '@/components/OwnerAdvertisement'
 const DashBoard = () => {
   return (
     <View>
-      <Text>DashBoard</Text>
+     <OwnerAdvertisement/>
     </View>
   )
 }

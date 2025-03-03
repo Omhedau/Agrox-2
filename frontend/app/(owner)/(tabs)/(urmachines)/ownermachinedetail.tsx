@@ -5,14 +5,14 @@ import {
     ScrollView,
     ActivityIndicator,
     TouchableOpacity,
-  } from "react-native";
-  import React, { useEffect, useState } from "react";
-  import { useLocalSearchParams, useRouter } from "expo-router";
-  import axios from "axios";
-  import constants from "@/constants/data";
-import Reviews from "@/components/Reviews";
-  
-  const MachineDetail = () => {
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import axios from "axios";
+import constants from "@/constants/data";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
+
+const MachineDetail = () => {
     const router = useRouter();
     const { machineId } = useLocalSearchParams();
 
@@ -31,7 +31,6 @@ import Reviews from "@/components/Reviews";
     }
 
     interface Machine {
-        _id: string;
         images?: string[];
         name: string;
         model?: string;
@@ -102,96 +101,141 @@ import Reviews from "@/components/Reviews";
     }
 
     return (
-      <ScrollView className="bg-gray-50">
-        {/* Hero Image Section */}
-        <View className="relative">
-          <Image
-            source={{
-              uri:
-                machine.images && machine.images.length > 0
-                  ? machine.images[0]
-                  : "",
-            }}
-            className="w-full h-80 rounded-b-3xl shadow-lg"
-            resizeMode="cover"
-          />
-          <View className="absolute -bottom-2 left-0 right-0 bg-black/40 p-4 pb-7 rounded-t-xl">
-            {/* Truncate long machine names */}
-            <Text
-              className="text-white text-3xl font-bold"
-              numberOfLines={1} // Truncate after 1 line
-              ellipsizeMode="tail" // Add "..." at the end if truncated
-            >
-              {machine.name}
-            </Text>
-            {/* Adjusted spacing for the model text */}
-            <Text className="text-white text-lg mt-2">{machine.model}</Text>
-          </View>
-        </View>
-
-        {/* Machine Details Section */}
-        <View className="p-6 bg-white rounded-t-3xl shadow-lg -mt-2">
-          <Text className="text-2xl font-bold text-gray-900 mb-4">
-            Machine Details
-          </Text>
-
-          <View className="space-y-4">
-            <View className="bg-gray-50 p-4 rounded-xl shadow-sm">
-              <Text className="text-gray-500 text-sm">Description</Text>
-              <Text className="text-gray-800 text-lg mt-1">
-                {machine.description || "No description available."}
-              </Text>
+        <ScrollView className="bg-gray-50">
+            {/* Hero Image Section */}
+            <View className="relative">
+                <Image
+                    source={{
+                        uri:
+                            machine.images && machine.images.length > 0
+                                ? machine.images[0]
+                                : "",
+                    }}
+                    className="w-full h-80 rounded-b-3xl shadow-lg"
+                    resizeMode="cover"
+                />
+                <View className="absolute -bottom-2 left-0 right-0 bg-black/40 p-4 pb-7 rounded-t-xl">
+                    {/* Truncate long machine names */}
+                    <Text
+                        className="text-white text-3xl font-bold"
+                        numberOfLines={1} // Truncate after 1 line
+                        ellipsizeMode="tail" // Add "..." at the end if truncated
+                    >
+                        {machine.name}
+                    </Text>
+                    {/* Adjusted spacing for the model text */}
+                    <Text className="text-white text-lg mt-2">{machine.model}</Text>
+                </View>
             </View>
 
-            <View className="bg-gray-50 p-4 rounded-xl shadow-sm">
-              <Text className="text-gray-500 text-sm">Year of Manufacture</Text>
-              <Text className="text-gray-800 text-lg mt-1">
-                {machine.yearOfMfg}
-              </Text>
+            {/* Action Buttons */}
+            <View className="flex-row justify-between items-center mx-2 p-4">
+                {/* Status on the left */}
+                <Text
+                    className={`px-3 py-1 rounded-full text-lg font-bold ${machine.availableStatus
+                            ? "bg-green-100 text-green-800" // Green background and text for "Available"
+                            : "bg-red-100 text-red-800" // Red background and text for "Not Available"
+                        }`}
+                >
+                    {machine.availableStatus ? "Available" : "Not Available"}
+                </Text>
+
+                {/* Buttons on the right */}
+                <View className="flex-row space-x-4">
+                    <TouchableOpacity
+                        onPress={handleEdit}
+                        className="bg-blue-500 p-3 mx-2 rounded-full"
+                    >
+                        <Feather name="edit" size={24} color="white" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={handleDelete}
+                        className="bg-red-500 p-3 mx-2 rounded-full"
+                    >
+                        <MaterialIcons name="delete" size={24} color="white" />
+                    </TouchableOpacity>
+                </View>
             </View>
 
-            <View className="bg-gray-50 p-4 rounded-xl shadow-sm">
-              <Text className="text-gray-500 text-sm">Rental Cost</Text>
-              <Text className="text-blue-600 text-lg font-bold mt-1">
-                ₹{parseFloat(machine.rentalCost.$numberDecimal).toFixed(2)} per{" "}
-                {machine.rentalUnit || "N/A"}
-              </Text>
+            {/* Machine Details Section */}
+            <View className="p-6 bg-white rounded-t-3xl shadow-lg -mt-2">
+                <Text className="text-2xl font-bold text-gray-900 mb-4">
+                    Machine Details
+                </Text>
+
+                <View className="space-y-4">
+                    <View className="bg-gray-50 p-4 rounded-xl shadow-sm">
+                        <Text className="text-gray-500 text-sm">Description</Text>
+                        <Text className="text-gray-800 text-lg mt-1">
+                            {machine.description || "No description available."}
+                        </Text>
+                    </View>
+
+                    <View className="bg-gray-50 p-4 rounded-xl shadow-sm">
+                        <Text className="text-gray-500 text-sm">Year of Manufacture</Text>
+                        <Text className="text-gray-800 text-lg mt-1">
+                            {machine.yearOfMfg}
+                        </Text>
+                    </View>
+
+                    <View className="bg-gray-50 p-4 rounded-xl shadow-sm">
+                        <Text className="text-gray-500 text-sm">Rental Cost</Text>
+                        <Text className="text-blue-600 text-lg font-bold mt-1">
+                            ₹{parseFloat(machine.rentalCost.$numberDecimal).toFixed(2)} per{" "}
+                            {machine.rentalUnit || "N/A"}
+                        </Text>
+                    </View>
+                </View>
             </View>
-          </View>
-        </View>
 
-        {/* Owner Details Section */}
-        <View className="p-6 mt-6 bg-white rounded-t-3xl shadow-lg">
-          <Text className="text-2xl font-bold text-gray-900 mb-4">
-            Owner Details
-          </Text>
+            {/* Owner Details Section */}
+            <View className="p-6 mt-6 bg-white rounded-t-3xl shadow-lg">
+                <Text className="text-2xl font-bold text-gray-900 mb-4">
+                    Owner Details
+                </Text>
 
-          <View className="bg-gray-50 p-4 rounded-xl shadow-sm">
-            <Text className="text-gray-500 text-sm">Owner Name</Text>
-            <Text className="text-gray-800 text-lg mt-1">
-              {machine.ownerId.name}
-            </Text>
+                <View className="bg-gray-50 p-4 rounded-xl shadow-sm">
+                    <Text className="text-gray-500 text-sm">Owner Name</Text>
+                    <Text className="text-gray-800 text-lg mt-1">
+                        {machine.ownerId.name}
+                    </Text>
 
-            <Text className="text-gray-500 text-sm mt-3">Contact Number</Text>
-            <Text className="text-gray-800 text-lg mt-1">
-              {machine.ownerId.mobile}
-            </Text>
+                    <Text className="text-gray-500 text-sm mt-3">Contact Number</Text>
+                    <Text className="text-gray-800 text-lg mt-1">
+                        {machine.ownerId.mobile}
+                    </Text>
 
-            <Text className="text-gray-500 text-sm mt-3">Village</Text>
-            <Text className="text-gray-800 text-lg mt-1">
-              {machine.ownerId.village.village_name} (Code:{" "}
-              {machine.ownerId.village.village_code})
-            </Text>
-          </View>
-        </View>
+                    <Text className="text-gray-500 text-sm mt-3">Village</Text>
+                    <Text className="text-gray-800 text-lg mt-1">
+                        {machine.ownerId.village.village_name} (Code:{" "}
+                        {machine.ownerId.village.village_code})
+                    </Text>
+                </View>
+            </View>
 
-        {/* Reviews Section */}
-        <View className="p-6 mt-6 bg-white rounded-t-3xl shadow-lg">
-          <Text className="text-2xl font-bold text-gray-900 mb-4">Reviews</Text>
+            {/* Reviews Section */}
+            <View className="p-6 mt-6 bg-white rounded-t-3xl shadow-lg">
+                <Text className="text-2xl font-bold text-gray-900 mb-4">Reviews</Text>
 
-          <Reviews machineId={machine._id}/>
-        </View>
-      </ScrollView>
+                <View className="space-y-4">
+                    {["John Doe", "Jane Smith", "Bob Johnson"].map((name, index) => (
+                        <View key={index} className="bg-gray-50 p-4 rounded-xl shadow-sm">
+                            <Text className="text-lg font-medium text-gray-800">{name}</Text>
+                            <Text className="text-gray-600 mt-2">
+                                {index === 0
+                                    ? "Great machine! Smooth rental experience."
+                                    : index === 1
+                                        ? "Excellent condition, highly recommend!"
+                                        : "Decent machine but had minor issues."}
+                            </Text>
+                            <Text className="text-yellow-500 mt-2">
+                                {"★".repeat(5 - index) + "☆".repeat(index)}
+                            </Text>
+                        </View>
+                    ))}
+                </View>
+            </View>
+        </ScrollView>
     );
 };
 

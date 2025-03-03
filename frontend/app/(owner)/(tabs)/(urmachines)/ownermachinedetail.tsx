@@ -31,6 +31,7 @@ import Reviews from "@/components/Reviews";
     }
 
     interface Machine {
+        _id: string;
         images?: string[];
         name: string;
         model?: string;
@@ -188,7 +189,7 @@ import Reviews from "@/components/Reviews";
         <View className="p-6 mt-6 bg-white rounded-t-3xl shadow-lg">
           <Text className="text-2xl font-bold text-gray-900 mb-4">Reviews</Text>
 
-          <Reviews />
+          <Reviews machineId={machine._id}/>
         </View>
       </ScrollView>
     );

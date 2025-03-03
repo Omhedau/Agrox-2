@@ -10,6 +10,7 @@ const {
   deleteMachine,
   getMachinesAvailableInYourVillage,
   getMachineByCat,
+  getMachinesByOwner
 } = require("../controllers/machineController");
 
 console.log("machine.js");
@@ -21,6 +22,8 @@ router.get("/:id", getMachine); // Use a specific ID parameter for fetching a ma
 router.get("/category/:category", getMachineByCat);
 // Routes protected by validateToken middleware
 router.use(validateToken);
+
+router.get("/owner", getMachinesByOwner);
 router.post("/add", addMachine);
 router.put("/:id", updateMachine); // Use PUT for updates, with ID parameter
 router.delete("/:id", deleteMachine); // Use DELETE for deleting, with ID parameter

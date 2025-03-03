@@ -58,7 +58,8 @@ const getMachinesAvailableInYourVillage = asyncHandler(async (req, res) => {
 //@route GET /api/machine/owner/:ownerId
 //@access Public
 const getMachinesByOwner = asyncHandler(async (req, res) => {
-  const ownerId = req.params.ownerId;
+  const ownerId = req.user.id;
+  console.log("i am in get machiens by onwer")
   console.log(`[DEBUG] - Fetching machines for owner ID: ${ownerId}`);
 
   try {
@@ -229,6 +230,7 @@ const addMachine = asyncHandler(async (req, res) => {
 
 const getMachineByCat = asyncHandler(async (req, res) => {
   try {
+    
     const { category } = req.params;
     
     const machines = await Machine.find({ category })

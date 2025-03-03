@@ -7,6 +7,10 @@ const RentalLayout = () => {
     <Stack initialRouteName="machines">
       <Stack.Screen name="machines" options={{ headerShown: false }} />
       <Stack.Screen name="machineDetail" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="machinesByCategory"
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 };

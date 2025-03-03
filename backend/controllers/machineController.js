@@ -105,7 +105,6 @@ const getMachines = asyncHandler(async (req, res) => {
 //@desc Get machine details
 //@route GET /api/machine/:id
 
-
 // const getMachine = asyncHandler(async (req, res) => {
 //   const { id } = req.params;
 //   console.log("[DEBUG] - Request URL:", req.originalUrl);
@@ -113,7 +112,7 @@ const getMachines = asyncHandler(async (req, res) => {
 //   console.log(`[DEBUG] - Fetching machine details for ID: ${id}`);
 
 //   // Validate MongoDB ObjectId format
-  
+
 //   try {
 //     const machine = await Machine.findById(id);
 
@@ -135,7 +134,6 @@ const getMachines = asyncHandler(async (req, res) => {
 //     });
 //   }
 // });
-
 
 const getMachine = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -194,12 +192,10 @@ const addMachine = asyncHandler(async (req, res) => {
       !machineData.rentalUnit
     ) {
       console.error("[ERROR] - Missing required machine details");
-      return res
-        .status(400)
-        .json({
-          error:
-            "Missing required fields: name, yearOfMfg, rentalCost, rentalUnit",
-        });
+      return res.status(400).json({
+        error:
+          "Missing required fields: name, yearOfMfg, rentalCost, rentalUnit",
+      });
     }
 
     console.log("[INFO] - Valid machine data received, proceeding to save");
@@ -226,21 +222,26 @@ const addMachine = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 const getMachineByCat = asyncHandler(async (req, res) => {
   try {
     
+    console.log("getMachineByCat");
+
     const { category } = req.params;
-    
-    const machines = await Machine.find({ category })
-      
-    
+    const ownerId = req.user?.id;
+
+    const machines = await Machine.find({ ownerId, category });
+
+    console.log("machines", machines);
+
     if (!machines.length) {
-      return res.status(404).json({ message: "No machines found in this category" });
+      return res
+        .status(404)
+        .json({ message: "No machines found in this category" });
     }
-    
-    res.status(200).json(machines);
+
+    res.status(200).json({machines}); 
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -24,7 +24,7 @@ const Categories = () => {
       <Text style={styles.header}>Categories</Text>
       <View style={styles.grid}>
         {categories.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.card} onPress={() => router.push({ pathname: `/`, params: { category: item.name } })}>
+          <TouchableOpacity key={index} style={styles.card} onPress={() => router.push({ pathname: `/(root)/(tabs)/(rental)/machinesByCategory`, params: { category: item.name } })}>
             <Image source={item.image} style={styles.image} />
             <Text style={styles.categoryName}>{item.name}</Text>
           </TouchableOpacity>

@@ -25,6 +25,7 @@ console.log("index.js");
 app.use("/api/machine", require('./routes/machine'));
 app.use("/api/user", require("./routes/user"));
 app.use("/api/image", require("./routes/image"));
+app.use("/api/review", require("./routes/review"));
 app.use(errorHandler);
 // Start the server and listen on the specified port
 

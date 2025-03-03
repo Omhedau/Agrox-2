@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import axios from "axios";
 import constants from "@/constants/data";
+import Reviews from "@/components/Reviews";
 
 const MachineDetail = () => {
   const router = useRouter();
@@ -30,6 +31,7 @@ const MachineDetail = () => {
   }
 
   interface Machine {
+    _id: string
     images?: string[];
     name: string;
     model?: string;
@@ -167,23 +169,7 @@ const MachineDetail = () => {
       <View className="p-6 mt-6 bg-white rounded-t-3xl shadow-lg">
         <Text className="text-2xl font-bold text-gray-900 mb-4">Reviews</Text>
 
-        <View className="space-y-4">
-          {["John Doe", "Jane Smith", "Bob Johnson"].map((name, index) => (
-            <View key={index} className="bg-gray-50 p-4 rounded-xl shadow-sm">
-              <Text className="text-lg font-medium text-gray-800">{name}</Text>
-              <Text className="text-gray-600 mt-2">
-                {index === 0
-                  ? "Great machine! Smooth rental experience."
-                  : index === 1
-                  ? "Excellent condition, highly recommend!"
-                  : "Decent machine but had minor issues."}
-              </Text>
-              <Text className="text-yellow-500 mt-2">
-                {"★".repeat(5 - index) + "☆".repeat(index)}
-              </Text>
-            </View>
-          ))}
-        </View>
+        <Reviews machineId={machine._id} />
       </View>
     </ScrollView>
   );

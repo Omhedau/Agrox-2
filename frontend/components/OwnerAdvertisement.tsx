@@ -6,7 +6,7 @@ const { width } = Dimensions.get("window");
 
 const slides = [
   { id: "1", text: "💰 Increase your income by renting out your machines!", image: constants.Mulcher },
-  { id: "2", text: "➕ Add your machines to reach more farmers.", image: constants.newYork },
+  { id: "2", text: "➕ Add your machines to reach more farmers.", image: constants.ChiselPlow },
   { id: "3", text: "📍 Make your services available in your village.", image: constants.Cultivator },
   { id: "4", text: "⚙️ Easily manage and track your machines.", image: constants.Mulcher },
 ];

@@ -6,6 +6,8 @@ const _layout = () => {
     <Stack initialRouteName="urmachines">
       <Stack.Screen name="urmachines" options={{ headerShown: false }} />
       <Stack.Screen name="ownermachinedetail" options={{ headerShown: false }} />
+      <Stack.Screen name="editMachine" options={{ headerShown: false }} />
+      <Stack.Screen name="deleteMachine" options={{ headerShown: false }} />
     </Stack>
   );
 };

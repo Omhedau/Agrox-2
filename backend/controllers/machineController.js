@@ -251,25 +251,59 @@ const getMachineByCat = asyncHandler(async (req, res) => {
 //@route PUT /api/machine/:id
 //@access Private
 const updateMachine = asyncHandler(async (req, res) => {
-  const machineId = req.params.id;
-  const { name, description, price, image, documents } = req.body;
-  const machine = await Machine.findById(machineId);
-  if (machine) {
-    machine.name = name;
-    machine.description = description;
-    machine.price = price;
-    machine.image = image;
-    machine.documents = documents;
+  try {
+    const ownerId = req.user?.id;
+    const  machineId  = req.params.id;
+    const updateData = req.body;
+
+    console.log(
+      `[DEBUG] - Request received to update machine: ${machineId} by user: ${ownerId}`
+    );
+
+    // Validate machine ID
+    if (!machineId) {
+      console.error("[ERROR] - Machine ID is required for update");
+      return res.status(400).json({ error: "Machine ID is required" });
+    }
+
+    // Validate if there is data to update
+    if (!Object.keys(updateData).length) {
+      console.error("[ERROR] - No update data provided");
+      return res.status(400).json({ error: "No update data provided" });
+    }
+
+    console.log("[INFO] - Valid update data received, proceeding to update");
+
+    // Find the machine and ensure it belongs to the user
+    const machine = await Machine.findOne({ _id: machineId, ownerId });
+
+    if (!machine) {
+      console.error("[ERROR] - Machine not found or unauthorized access");
+      return res.status(404).json({ error: "Machine not found" });
+    }
+
+    console.log("[DEBUG] - Machine found, applying updates");
+
+    // Update the machine data
+    Object.assign(machine, updateData);
     const updatedMachine = await machine.save();
+
+    console.log(
+      `[SUCCESS] - Machine updated successfully. Machine ID: ${updatedMachine._id}`
+    );
+
     res.status(200).json({
       message: "Machine updated successfully",
       machine: updatedMachine,
     });
-  } else {
-    res.status(404);
-    throw new Error("Machine not found");
+  } catch (error) {
+    console.error("[ERROR] - Failed to update machine:", error.message);
+    res
+      .status(500)
+      .json({ error: "Internal server error", details: error.message });
   }
 });
+
 
 //@desc Delete a machine
 //@route DELETE /api/machine/:id

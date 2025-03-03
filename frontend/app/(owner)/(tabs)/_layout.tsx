@@ -20,7 +20,7 @@ const OwnerTabLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="urmachines"
+        name="(urmachines)"
         options={{
           title: "Machines",
           headerShown: false,

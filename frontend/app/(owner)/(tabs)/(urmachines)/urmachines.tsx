@@ -75,7 +75,7 @@ const Machines = () => {
                 </Text>
                 </View>
                 <TouchableOpacity
-                onPress={() => router.push({ pathname: `/machineDetail`, params: { machineId: machine._id } })} // Expo Router Navigation
+                onPress={() => router.push({ pathname: `/ownermachinedetail`, params: { machineId: machine._id } })} // Expo Router Navigation
                 className="p-2 bg-indigo-500 rounded-full"
                 >
                 <Ionicons name="chevron-forward" size={24} color="#fff" />

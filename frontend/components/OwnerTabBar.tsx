@@ -14,7 +14,7 @@ const OwnerTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
     dashboard: "grid-outline", // Dashboard icon
     "(machines-services)": "build-outline", // Machines/Services
     orders: "receipt-outline", // Orders/Invoices
-    urmachines: "cash-outline", // Revenue/Money
+    "(urmachines)": "cash-outline", // Revenue/Money
   };
 
   return (

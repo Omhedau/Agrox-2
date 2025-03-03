@@ -294,4 +294,5 @@ module.exports = {
   deleteMachine,
   getMachinesAvailableInYourVillage,
   getMachinesByOwner,
+  getMachineByCat,
 };

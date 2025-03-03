@@ -7,6 +7,8 @@ import { Ionicons } from "@expo/vector-icons";
 import constants from "@/constants/data";
 import RentalCarousel from "@/components/RentalCarousel";
 
+import Categories from "@/components/Categories";
+
 const Machines = () => {
   const router = useRouter();
 
@@ -42,6 +44,7 @@ const Machines = () => {
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView className="px-4 py-6">
         <RentalCarousel />
+        <Categories/>
         <Text className="text-2xl font-bold text-gray-900 mb-4">Available Machines</Text>
         
         {machines.length > 0 ? (

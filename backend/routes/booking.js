@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const validateToken = require("../middleware/validateTokenHandler");
-const {getBookings, getBooking, addBooking, updateBooking, deleteBooking } = require("../controllers/bookingController");
+const { getBookings, getBooking, addBooking, updateBooking, deleteBooking } = require("../controllers/bookingController");
 
 console.log("booking.js");
 

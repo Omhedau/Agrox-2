@@ -225,6 +225,25 @@ const addMachine = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+const getMachineByCat = asyncHandler(async (req, res) => {
+  try {
+    const { category } = req.params;
+    
+    const machines = await Machine.find({ category })
+      
+    
+    if (!machines.length) {
+      return res.status(404).json({ message: "No machines found in this category" });
+    }
+    
+    res.status(200).json(machines);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 //@desc Update a machine
 //@route PUT /api/machine/:id
 //@access Private

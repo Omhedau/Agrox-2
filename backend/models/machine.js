@@ -15,7 +15,7 @@ const MachineSchema = new mongoose.Schema(
     yearOfMfg: { type: Number, required: true },
     operatingArea: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Village", required: true },
-    ],
+    ],                                                                                                                                                                                                                                                                                                                                      
     rentalCost: { type: mongoose.Types.Decimal128, required: true },
     rentalUnit: {
       type: String,

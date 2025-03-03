@@ -9,6 +9,7 @@ const {
   updateMachine,
   deleteMachine,
   getMachinesAvailableInYourVillage,
+  getMachineByCat,
 } = require("../controllers/machineController");
 
 console.log("machine.js");
@@ -17,7 +18,7 @@ console.log("machine.js");
 router.post("/categories", getCategories);
 router.post("/all", getMachines);
 router.get("/:id", getMachine); // Use a specific ID parameter for fetching a machine
-
+router.get("/category/:category", getMachineByCat);
 // Routes protected by validateToken middleware
 router.use(validateToken);
 router.post("/add", addMachine);

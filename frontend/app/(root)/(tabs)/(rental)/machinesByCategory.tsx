@@ -58,7 +58,7 @@ const MachinesByCategory = () => {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-[#F3F4F6]">
       <ScrollView
         className="px-4 py-6"
         refreshControl={
@@ -74,6 +74,7 @@ const MachinesByCategory = () => {
             <View
               key={machine._id}
               className="bg-white rounded-xl shadow-lg mb-4 p-4 flex-row items-center"
+              style={styles.cardShadow}
             >
               <Image
                 source={{ uri: machine.images[0] }}
@@ -86,7 +87,7 @@ const MachinesByCategory = () => {
                 </Text>
                 <Text className="text-gray-600">Model: {machine.model}</Text>
                 <Text className="text-gray-500">Year: {machine.yearOfMfg}</Text>
-                <Text className="text-indigo-500 font-bold">
+                <Text className="text-[#4F83CC] font-bold">
                   ₹{machine.rentalCost.$numberDecimal} / {machine.rentalUnit}
                 </Text>
               </View>
@@ -97,7 +98,7 @@ const MachinesByCategory = () => {
                     params: { machineId: machine._id },
                   })
                 }
-                className="p-2 bg-indigo-500 rounded-full"
+                className="p-2 bg-[#4F83CC] rounded-full"
               >
                 <Ionicons name="chevron-forward" size={24} color="#fff" />
               </TouchableOpacity>
@@ -105,7 +106,7 @@ const MachinesByCategory = () => {
           ))
         ) : (
           <Text className="text-gray-600">
-            No machines available in your village.
+            No machines available in this category.
           </Text>
         )}
       </ScrollView>
@@ -115,4 +116,12 @@ const MachinesByCategory = () => {
 
 export default MachinesByCategory;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  cardShadow: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+});

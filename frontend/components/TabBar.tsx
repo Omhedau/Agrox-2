@@ -6,10 +6,10 @@ import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 
-   const text_primaryColor = "#7b68ee"; //Dark Green Color
+   const text_primaryColor = "#4F83CC"; //Dark Green Color
    const primaryColor = "#4ADE80";   // Light green for active tab background
    const primaryColor_300 = "#84EC84"  
-   const primaryColor_400 = "#bf94e4"; 
+   const primaryColor_400 = "#4F83CC"; 
    const primaryColor_500 = "#2C7F30"; 
    const greyColor = "#737373"; // Gray for inactive tab background
   

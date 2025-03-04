@@ -4,9 +4,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 const OwnerTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
-  const text_primaryColor = "#2C7F30"; // Dark Green
+  const text_primaryColor = "#4F83CC"; // Dark Green
   const primaryColor="#4ADE80"; // Light Green (Active)
-  const primaryColor_400 = "#32C338";
+  const primaryColor_400 = "#4F83CC";
   const greyColor = "#737373"; // Gray (Inactive)
 
   // Improved icons mapping

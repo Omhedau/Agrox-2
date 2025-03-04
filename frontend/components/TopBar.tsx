@@ -1,16 +1,17 @@
 import React from "react";
-import { View, Text, TouchableOpacity,Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import useUserStore from "@/store/userStore";
 import constants from "@/constants/images";
+
 const TopBar = () => {
   const router = useRouter();
-  
+
   const { user, isDarkMode, toggleDarkMode } = useUserStore() as {
-      user: { name: string, [key: string]: any };
-      isDarkMode: boolean;
-      toggleDarkMode: () => void;
+    user: { name: string; profileImage?: string };
+    isDarkMode: boolean;
+    toggleDarkMode: () => void;
   };
 
   const getInitials = (name: string) => {
@@ -23,36 +24,123 @@ const TopBar = () => {
   if (!user) return null;
 
   return (
-    <View style={{backgroundColor: "#e6e6fa"}} className="flex-row justify-between items-center px-4 py-3">
-      {/* Menu Button */}
-      <View className="p-2 rounded-full shadow shadow-black bg-indigo-300">
-        <Image source={constants.logo} style={{ width: 30, height: 30 }} />
+    <View style={styles.topBarContainer}>
+      {/* Logo and Title */}
+      <View style={styles.logoTitleContainer}>
+        <View style={styles.logoContainer}>
+          <Image source={constants.logo} style={styles.logo} />
+        </View>
+        <Text style={styles.title}>FarmEase</Text>
       </View>
 
-      <View className="flex-1 items-center">
-        <Text className="text-2xl font-rubik-bold shadow shadow-amber-300 text-gray-800 font-bold">
-          FarmEase
-        </Text>
-      </View>
-
-      {/* Notification and Dark Mode Toggle */}
-      <View className="flex-row items-center space-x-4">
-        <TouchableOpacity className="p-2" onPress={() => console.log("Notification")}>
-          <Ionicons name="notifications-outline" size={26} color="#1f2937" />
+      {/* Notification and Profile */}
+      <View style={styles.iconContainer}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => console.log("Notification")}
+        >
+          <Ionicons
+            name="notifications-outline"
+            size={26}
+            color={isDarkMode ? "#fff" : "#1f2937"}
+          />
         </TouchableOpacity>
 
         {/* Profile Button */}
         <TouchableOpacity
           onPress={() => router.push("/(root)/profile")}
-          className="w-10 h-10 bg-indigo-300 p-2 rounded-full justify-center items-center shadow-md ml-3"
+          style={styles.profileButton}
         >
-          <Text className="text-indigo-800 font-bold text-md">
-            {getInitials(user.name)}
-          </Text>
+          {user?.profileImage ? (
+            <Image
+              source={{ uri: user.profileImage }}
+              style={styles.profileImage}
+            />
+          ) : (
+            <Text style={styles.profileText}>{getInitials(user.name)}</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  topBarContainer: {
+    backgroundColor: "#E3F2FD", // Faint blue background
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#BBDEFB", // Subtle divider line at the bottom
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    shadowOpacity: 0.1,
+    elevation: 4,
+  },
+  logoTitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10, // Space between logo and title
+  },
+  logoContainer: {
+    backgroundColor: "#fff", // White background for the logo container
+    borderRadius: 25,
+    padding: 6,
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    shadowOpacity: 0.1,
+    elevation: 3,
+  },
+  logo: {
+    width: 30,
+    height: 30,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#1F2937", // Dark gray for better readability
+    textShadowColor: "rgba(0, 0, 0, 0.1)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16, // Space between icons
+  },
+  iconButton: {
+    padding: 8,
+  },
+  profileButton: {
+    width: 40,
+    height: 40,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#BBDEFB", // Matching border color with the theme
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    shadowOpacity: 0.1,
+    elevation: 3,
+  },
+  profileText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#4F83CC", // Matching profile initials with theme
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+});
 
 export default TopBar;

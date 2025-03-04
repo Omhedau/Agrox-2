@@ -279,7 +279,7 @@ const AddMachineForm = () => {
     >
       <View className="flex-1 bg-white px-6 py-10">
         {/* Machine Details */}
-        <Text className="text-primary-500 font-bold text-2xl mb-4">
+        <Text className="text-[#374151] font-bold text-2xl mb-4">
           Add Machine
         </Text>
 
@@ -339,9 +339,7 @@ const AddMachineForm = () => {
         )}
 
         {/* Machine Category */}
-        <Text className="text-gray-700 font-rubik mb-2">
-          Machine Category
-        </Text>
+        <Text className="text-gray-700 font-rubik mb-2">Machine Category</Text>
         <View style={styles.pickerContainer}>
           <Picker
             selectedValue={formData.category}
@@ -523,7 +521,7 @@ const AddMachineForm = () => {
 
         {/* Submit Button */}
         <TouchableOpacity
-          className="bg-green-500 mt-6 p-3 rounded-lg items-center"
+          className="bg-[#58677e] mt-6 p-3 rounded-lg items-center"
           onPress={handleSubmit}
           disabled={isSubmitting}
         >

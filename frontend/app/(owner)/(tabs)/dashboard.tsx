@@ -15,12 +15,15 @@ const DashBoard = () => {
     <ScrollView showsVerticalScrollIndicator={false} className="">
       <View style={styles.container}>
         <OwnerAdvertisement />
-        <TouchableOpacity style={styles.card} onPress={handlePress}>
-          <Text style={styles.cardTitle}>📖 Blog</Text>
-          <Text style={styles.cardSubtitle}>
-            Learn how to use the owner section
-          </Text>
-        </TouchableOpacity>
+
+        <View className="px-6">
+          <TouchableOpacity style={styles.card} onPress={handlePress}>
+            <Text style={styles.cardTitle}>📖 Blog</Text>
+            <Text style={styles.cardSubtitle}>
+              Learn how to use the owner section
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         <Testimonials />
       </View>
@@ -32,7 +35,7 @@ export default DashBoard;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: 0,
     backgroundColor: "#f5f5f5",
   },
   card: {

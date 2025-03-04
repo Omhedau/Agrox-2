@@ -7,6 +7,8 @@ const CropLayout = () => {
     <Stack initialRouteName="crophealth">
       <Stack.Screen name="crophealth" options={{ headerShown: false }} />
       <Stack.Screen name="cropRecomendation" options={{ headerShown: false }} />
+      <Stack.Screen name="fertilizerRecommednemtion" options={{ headerShown: false }} />
+      <Stack.Screen name="plantdisease" options={{ headerShown: false }} />  
     </Stack>
   );
 };

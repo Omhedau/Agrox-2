@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, View, Text, Image, TouchableOpacity } from "react-native";
+import React, { useEffect, useState, useCallback } from "react";
+import { SafeAreaView, ScrollView, View, Text, Image, TouchableOpacity, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import constants from "@/constants/data";
 import RentalCarousel from "@/components/RentalCarousel";
-
 import Categories from "@/components/Categories";
 
 const Machines = () => {
@@ -23,26 +22,36 @@ const Machines = () => {
   }
 
   const [machines, setMachines] = useState<Machine[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchMachines = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const response = await axios.get(`${constants.base_url}/api/machine/available/village`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMachines(response.data?.machines || []);
+    } catch (error) {
+      console.error("Error fetching machines:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchMachines = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        const response = await axios.get(`${constants.base_url}/api/machine/available/village`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setMachines(response.data?.machines || []);
-      } catch (error) {
-        console.error("Error fetching machines:", error);
-      }
-    };
-
     fetchMachines();
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchMachines();
+    setRefreshing(false);
   }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <ScrollView className="px-4 py-6">
+      <ScrollView
+        className="px-4 py-6"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <RentalCarousel />
         <Categories />
         <Text className="text-2xl font-bold text-gray-900 mb-4">Available Machines</Text>
@@ -62,13 +71,13 @@ const Machines = () => {
                 <Text className="text-indigo-500 font-bold">
                   ₹{machine.rentalCost.$numberDecimal} / {machine.rentalUnit}
                 </Text>
-                </View>
-                <TouchableOpacity
-                onPress={() => router.push({ pathname: `/machineDetail`, params: { machineId: machine._id } })} // Expo Router Navigation
+              </View>
+              <TouchableOpacity
+                onPress={() => router.push({ pathname: `/machineDetail`, params: { machineId: machine._id } })}
                 className="p-2 bg-indigo-500 rounded-full"
-                >
+              >
                 <Ionicons name="chevron-forward" size={24} color="#fff" />
-                </TouchableOpacity>
+              </TouchableOpacity>
             </View>
           ))
         ) : (

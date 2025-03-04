@@ -6,8 +6,9 @@ import {
   Text,
   TouchableOpacity,
   View,
+  RefreshControl,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import constants from "@/constants/data";
@@ -24,14 +25,14 @@ interface Machine {
   images: string[];
 }
 
-const machinesByCategory = () => {
+const MachinesByCategory = () => {
   const { category } = useLocalSearchParams();
   const [machines, setMachines] = useState<Machine[]>([]);
+  const [refreshing, setRefreshing] = useState(false); // Refresh state
 
   const getMachinesByCategory = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
-
       const response = await axios.get(
         `${constants.base_url}/api/machine/category/${category}`,
         {
@@ -40,7 +41,6 @@ const machinesByCategory = () => {
       );
 
       console.log("machinesByCategory", response.data?.machines);
-
       setMachines(response.data?.machines || []);
     } catch (error) {
       console.error("Error fetching machines:", error);
@@ -51,10 +51,20 @@ const machinesByCategory = () => {
     getMachinesByCategory();
   }, [category]);
 
-  console.log(category);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await getMachinesByCategory(); // Fetch new data
+    setRefreshing(false);
+  }, []);
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <ScrollView className="px-4 py-6">
+      <ScrollView
+        className="px-4 py-6"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Text className="text-2xl font-bold text-gray-900 mb-4">
           Available Machines
         </Text>
@@ -86,7 +96,7 @@ const machinesByCategory = () => {
                     pathname: `/machineDetail`,
                     params: { machineId: machine._id },
                   })
-                } // Expo Router Navigation
+                }
                 className="p-2 bg-indigo-500 rounded-full"
               >
                 <Ionicons name="chevron-forward" size={24} color="#fff" />
@@ -103,6 +113,6 @@ const machinesByCategory = () => {
   );
 };
 
-export default machinesByCategory;
+export default MachinesByCategory;
 
 const styles = StyleSheet.create({});

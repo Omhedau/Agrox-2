@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, View, Text, Image, TouchableOpacity } from "react-native";
+import React, { useEffect, useState, useCallback } from "react";
+import { SafeAreaView, ScrollView, View, Text, Image, TouchableOpacity, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import constants from "@/constants/data";
-import RentalCarousel from "@/components/RentalCarousel";
-
-import Categories from "@/components/Categories";
 
 const Machines = () => {
   const router = useRouter();
@@ -23,41 +20,56 @@ const Machines = () => {
   }
 
   const [machines, setMachines] = useState<Machine[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Function to fetch machines from API
+  const fetchMachines = async () => {
+    try {
+      setRefreshing(true);
+      const token = await AsyncStorage.getItem("token");
+
+      if (!token) {
+        console.error("Error: No token found in AsyncStorage");
+        setRefreshing(false);
+        return;
+      }
+
+      const response = await axios.get(`${constants.base_url}/api/machine/owner`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log("Machines fetched successfully:", response.data);
+      setMachines(response.data?.machines || []);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Error fetching machines:", error.response.data);
+      } else {
+        console.error("Error fetching machines:", (error as Error).message);
+      }
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchMachines = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-    
-        if (!token) {
-          console.error("Error: No token found in AsyncStorage");
-          return;
-        }
-    
-        const response = await axios.get(`${constants.base_url}/api/machine/owner`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-    
-        console.log("Machines fetched successfully:", response.data);
-        setMachines(response.data?.machines || []);
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-          console.error("Error fetching machines:", error.response.data);
-        } else {
-          console.error("Error fetching machines:", (error as Error).message);
-        }
-      }
-    };
-    
+    fetchMachines();
+  }, []);
 
+  // Function to handle pull-to-refresh
+  const onRefresh = useCallback(() => {
     fetchMachines();
   }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <ScrollView className="px-4 py-6">
+      <ScrollView
+        className="px-4 py-6"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4f46e5"]} />
+        }
+      >
         <Text className="text-2xl font-bold text-gray-900 mb-4">Available Machines</Text>
-        
+
         {machines.length > 0 ? (
           machines.map((machine) => (
             <View key={machine._id} className="bg-white rounded-xl shadow-lg mb-4 p-4 flex-row items-center">
@@ -73,13 +85,13 @@ const Machines = () => {
                 <Text className="text-indigo-500 font-bold">
                   ₹{machine.rentalCost.$numberDecimal} / {machine.rentalUnit}
                 </Text>
-                </View>
-                <TouchableOpacity
-                onPress={() => router.push({ pathname: `/ownermachinedetail`, params: { machineId: machine._id } })} // Expo Router Navigation
+              </View>
+              <TouchableOpacity
+                onPress={() => router.push({ pathname: `/ownermachinedetail`, params: { machineId: machine._id } })}
                 className="p-2 bg-indigo-500 rounded-full"
-                >
+              >
                 <Ionicons name="chevron-forward" size={24} color="#fff" />
-                </TouchableOpacity>
+              </TouchableOpacity>
             </View>
           ))
         ) : (

@@ -5,7 +5,10 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
-    "scheme": ["agrox", "farmease"],
+    "scheme": [
+      "agrox",
+      "farmease"
+    ],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -16,7 +19,12 @@
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.vinayhivrale.agrox"
+      "package": "com.vinayhivrale.agrox",
+      "statusBar": {
+        "backgroundColor": "#ffffff",
+        "barStyle": "light-content",
+        "translucent": false
+      }
     },
     "web": {
       "bundler": "metro",

@@ -4,12 +4,18 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import { LinearGradient } from "expo-linear-gradient";
+import axios from "axios";
+import constants from "@/constants/data";
 
 const PlantDiseasePredictionForm = () => {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [fileUri, setFileUri] = useState<string | null>(null); // Store the file URI
+  const [prediction, setPrediction] = useState<string | null>(null); // Store the API response
+  const [loading, setLoading] = useState(false); // Track loading state
 
   const pickDocument = async () => {
     let result = await DocumentPicker.getDocumentAsync({
@@ -19,14 +25,50 @@ const PlantDiseasePredictionForm = () => {
     if (result.canceled || !result.assets.length) return;
 
     setSelectedFile(result.assets[0].name);
+    setFileUri(result.assets[0].uri); // Store the file URI
   };
 
-  const handleSubmit = () => {
-    if (!selectedFile) {
+  const handleSubmit = async () => {
+    if (!fileUri) {
       alert("Please upload an image of the plant leaf.");
       return;
     }
-    console.log("Submitting document for disease detection:", selectedFile);
+
+    setLoading(true); // Start loading
+    setPrediction(null); // Reset prediction
+
+    try {
+      // Create a FormData object
+      const formData = new FormData();
+      formData.append("file", {
+        uri: fileUri,
+        name: selectedFile,
+        type: "image/jpeg", // Adjust the type based on the file
+      } as any);
+
+      // Make the API call
+      const response = await axios.post(
+        `${constants.bass_url}/disease-predict`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      // Set the prediction from the API response
+      if (response.data.success) {
+        setPrediction(response.data.prediction);
+      } else {
+        setPrediction("Failed to get a prediction. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error fetching disease prediction:", error);
+      setPrediction("An error occurred. Please check your file and try again.");
+    } finally {
+      setLoading(false); // Stop loading
+    }
   };
 
   return (
@@ -67,11 +109,32 @@ const PlantDiseasePredictionForm = () => {
           <TouchableOpacity
             onPress={handleSubmit}
             className="bg-[#FF8C00] py-4 rounded-lg shadow-lg"
+            disabled={loading || !selectedFile} // Disable if no file is selected
           >
-            <Text className="text-white text-lg font-semibold text-center">
-              🔍 Predict Disease
-            </Text>
+            {loading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-white text-lg font-semibold text-center">
+                🔍 Predict Disease
+              </Text>
+            )}
           </TouchableOpacity>
+
+          {/* Display Prediction */}
+          {prediction && (
+            <View className="mt-6 p-4 bg-white/10 rounded-lg border border-white/20">
+              <Text className="text-white text-lg font-semibold mb-2">
+                Prediction:
+              </Text>
+              <Text className="text-white text-base">
+                {prediction
+                  .replace(/<b>/g, "") // Remove <b> tags
+                  .replace(/<\/b>/g, "") // Remove </b> tags
+                  .replace(/<br\/?>/g, "\n")}{" "}
+                {/* Replace <br> tags with newlines */}
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </LinearGradient>

@@ -8,6 +8,14 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { LinearGradient } from "expo-linear-gradient";
+import axios from "axios";
+import constants from "@/constants/data";
+
+// Define a mapping of states to their cities
+const stateCityMap = {
+  Maharashtra: ["Pune", "Mumbai", "Nagpur", "Nashik"],
+  "Madhya Pradesh": ["Indore", "Bhopal", "Jabalpur", "Gwalior"],
+};
 
 const CropPredictionForm = () => {
   const [formData, setFormData] = useState({
@@ -20,16 +28,51 @@ const CropPredictionForm = () => {
     city: "",
   });
 
-  // Fix: Define the key as keyof formData to ensure type safety
+  const [cities, setCities] = useState<string[]>([]); // Store cities based on selected state
+  const [prediction, setPrediction] = useState<string | null>(null); // Store the API response
+  const [loading, setLoading] = useState(false); // Track loading state
+
   const handleInputChange = (key: keyof typeof formData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [key]: value,
     }));
+
+    // Update cities when the state changes
+    if (key === "state") {
+      setCities(stateCityMap[value as keyof typeof stateCityMap] || []);
+      setFormData((prev) => ({ ...prev, city: "" })); // Reset city when state changes
+    }
   };
 
-  const handleSubmit = () => {
-    console.log("Form Data:", formData);
+  const handleSubmit = async () => {
+    setLoading(true); // Start loading
+    setPrediction(null); // Reset prediction
+
+    try {
+      const response = await axios.post(`${constants.bass_url}/crop-predict`, {
+        nitrogen: Number.parseFloat(formData.nitrogen),
+        phosphorous: Number.parseFloat(formData.phosphorous),
+        potassium: Number.parseFloat(formData.potassium),
+        ph: Number.parseFloat(formData.pH), // Ensure the key matches the API's expected input
+        rainfall: Number.parseFloat(formData.rainfall),
+        city: formData.city,
+      });
+
+      // Set the prediction from the API response
+      if (response.data.success) {
+        setPrediction(response.data.prediction);
+      } else {
+        setPrediction("Failed to get a prediction. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error fetching crop prediction:", error);
+      setPrediction(
+        "An error occurred. Please check your inputs and try again."
+      );
+    } finally {
+      setLoading(false); // Stop loading
+    }
   };
 
   return (
@@ -75,8 +118,8 @@ const CropPredictionForm = () => {
                 style={{ color: "white" }}
               >
                 <Picker.Item label="Select State" value="" />
-                <Picker.Item label="State 1" value="state1" />
-                <Picker.Item label="State 2" value="state2" />
+                <Picker.Item label="Maharashtra" value="Maharashtra" />
+                <Picker.Item label="Madhya Pradesh" value="Madhya Pradesh" />
               </Picker>
             </View>
           </View>
@@ -89,10 +132,12 @@ const CropPredictionForm = () => {
                 selectedValue={formData.city}
                 onValueChange={(value) => handleInputChange("city", value)}
                 style={{ color: "white" }}
+                enabled={!!formData.state} // Disable city picker until a state is selected
               >
                 <Picker.Item label="Select City" value="" />
-                <Picker.Item label="City 1" value="city1" />
-                <Picker.Item label="City 2" value="city2" />
+                {cities.map((city) => (
+                  <Picker.Item key={city} label={city} value={city} />
+                ))}
               </Picker>
             </View>
           </View>
@@ -101,11 +146,24 @@ const CropPredictionForm = () => {
           <TouchableOpacity
             onPress={handleSubmit}
             className="bg-[#FF8C00] py-4 rounded-lg shadow-lg"
+            disabled={loading || !formData.state || !formData.city} // Disable if no state or city is selected
           >
             <Text className="text-white text-lg font-semibold text-center">
-              🚜 Predict Crop
+              {loading ? "🚜 Predicting..." : "🚜 Predict Crop"}
             </Text>
           </TouchableOpacity>
+
+          {/* Display Prediction */}
+          {prediction && (
+            <View className="mt-6 p-4 bg-white/10 rounded-lg border border-white/20">
+              <Text className="text-white text-lg font-semibold mb-2">
+                Recommended Crop:
+              </Text>
+              <Text className="text-white text-base capitalize">
+                {prediction}
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </LinearGradient>

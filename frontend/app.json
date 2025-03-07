@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Restate",
+    "name": "AgroX",
     "slug": "agrox",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -64,9 +64,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "6ac81980-96b4-4235-a99e-1f93af2d6bb7"
+        "projectId": "a9b2e39e-2230-4674-a17e-6969bd635419"
       }
     },
-    "owner": "vinayhivrale"
+    "owner": "omhedau"
   }
 }

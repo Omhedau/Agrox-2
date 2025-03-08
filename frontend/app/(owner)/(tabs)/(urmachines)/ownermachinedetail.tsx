@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import axios from "axios";
 import constants from "@/constants/data";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import Reviews from "@/components/Reviews";
 
 const MachineDetail = () => {
@@ -30,17 +31,18 @@ const MachineDetail = () => {
     };
   }
 
-  interface Machine {
-    _id: string;
-    images?: string[];
-    name: string;
-    model?: string;
-    description?: string;
-    yearOfMfg: number;
-    rentalCost?: any;
-    rentalUnit?: string;
-    ownerId: Owner;
-  }
+    interface Machine {
+      _id: string
+      images?: string[];
+      name: string;
+      model?: string;
+      description?: string;
+      yearOfMfg: number;
+      rentalCost?: any;
+      rentalUnit?: string;
+      ownerId: Owner;
+      availableStatus: Boolean;
+    }
 
   const [machine, setMachine] = useState<Machine | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,6 +64,24 @@ const MachineDetail = () => {
 
     fetchMachineDetails();
   }, [machineId]);
+
+  const handleEdit = () => {
+    if (machine) {
+      router.push({
+        pathname: "/editMachine",
+        params: { machine: JSON.stringify(machine) },
+      });
+    }
+  };
+
+  const handleDelete = () => {
+    if (machine) {
+      router.push({
+        pathname: "/deleteMachine",
+        params: { machine: JSON.stringify(machine) },
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -106,6 +126,36 @@ const MachineDetail = () => {
           </Text>
           {/* Adjusted spacing for the model text */}
           <Text className="text-white text-lg mt-2">{machine.model}</Text>
+        </View>
+      </View>
+
+      {/* Action Buttons */}
+      <View className="flex-row justify-between items-center mx-2 p-4">
+        {/* Status on the left */}
+        <Text
+          className={`px-3 py-1 rounded-full text-lg font-bold ${
+            machine.availableStatus
+              ? "bg-green-100 text-green-800" // Green background and text for "Available"
+              : "bg-red-100 text-red-800" // Red background and text for "Not Available"
+          }`}
+        >
+          {machine.availableStatus ? "Available" : "Not Available"}
+        </Text>
+
+        {/* Buttons on the right */}
+        <View className="flex-row space-x-4">
+          <TouchableOpacity
+            onPress={handleEdit}
+            className="bg-blue-500 p-3 mx-2 rounded-full"
+          >
+            <Feather name="edit" size={24} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleDelete}
+            className="bg-red-500 p-3 mx-2 rounded-full"
+          >
+            <MaterialIcons name="delete" size={24} color="white" />
+          </TouchableOpacity>
         </View>
       </View>
 

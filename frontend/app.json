@@ -1,14 +1,11 @@
 {
   "expo": {
     "name": "AgroX",
-    "slug": "agrox",
+    "slug": "agrofarm",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
-    "scheme": [
-      "agrox",
-      "farmease"
-    ],
+    "scheme": ["agrox", "farmease"],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -64,7 +61,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "a9b2e39e-2230-4674-a17e-6969bd635419"
+        "projectId": "fa07d62b-7e1c-41d9-a867-64345f3a72f5"
       }
     },
     "owner": "omhedau"

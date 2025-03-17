@@ -37,7 +37,12 @@ import image7 from "@/assets/images/7.jpg";
 import image8 from "@/assets/images/8.jpg";
 import image9 from "@/assets/images/9.jpg";
 import image10 from "@/assets/images/10.jpg";
-
+import crop from "@/assets/images/crop.jpg";
+import fertilizer from "@/assets/images/fertilizer.jpg";
+import pesticide from "@/assets/images/pesticides.jpg";
+import seeds from "@/assets/images/seeds.jpg";
+import tools from "@/assets/images/tools.jpg";
+import herbicides from "@/assets/images/herbicides.jpg";
 
 
 export default {
@@ -80,6 +85,11 @@ export default {
   image8,
   image9,
   image10,
+  crop,
+  fertilizer,
+  pesticide,
+  seeds,
+  tools,
+  herbicides,
   
-
 };

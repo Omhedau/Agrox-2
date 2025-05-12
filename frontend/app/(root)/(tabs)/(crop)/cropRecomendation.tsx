@@ -5,61 +5,70 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import { LinearGradient } from "expo-linear-gradient";
 import axios from "axios";
-import constants from "@/constants/data";
 
-// Define a mapping of states to their cities
-const stateCityMap = {
-  Maharashtra: ["Pune", "Mumbai", "Nagpur", "Nashik"],
-  "Madhya Pradesh": ["Indore", "Bhopal", "Jabalpur", "Gwalior"],
-};
+// Define the structure for the form data
+interface FormData {
+  nitrogen: string;
+  phosphorous: string;
+  potassium: string;
+  temperature: string;
+  humidity: string;
+  pH: string;
+  rainfall: string;
+}
 
 const CropPredictionForm = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     nitrogen: "",
     phosphorous: "",
     potassium: "",
+    temperature: "",
+    humidity: "",
     pH: "",
     rainfall: "",
-    state: "",
-    city: "",
   });
 
-  const [cities, setCities] = useState<string[]>([]); // Store cities based on selected state
-  const [prediction, setPrediction] = useState<string | null>(null); // Store the API response
-  const [loading, setLoading] = useState(false); // Track loading state
+  const [prediction, setPrediction] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleInputChange = (key: keyof typeof formData, value: string) => {
+  // Handle input changes
+  const handleInputChange = (key: keyof FormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [key]: value,
     }));
-
-    // Update cities when the state changes
-    if (key === "state") {
-      setCities(stateCityMap[value as keyof typeof stateCityMap] || []);
-      setFormData((prev) => ({ ...prev, city: "" })); // Reset city when state changes
-    }
   };
 
+  // Handle form submission
   const handleSubmit = async () => {
-    setLoading(true); // Start loading
-    setPrediction(null); // Reset prediction
+    // Check for missing fields
+    if (Object.values(formData).some((value) => value === "")) {
+      setPrediction("Please fill in all the fields.");
+      return;
+    }
+
+    setLoading(true);
+    setPrediction(null);
 
     try {
-      const response = await axios.post(`${constants.bass_url}/crop-predict`, {
-        nitrogen: Number.parseFloat(formData.nitrogen),
-        phosphorous: Number.parseFloat(formData.phosphorous),
-        potassium: Number.parseFloat(formData.potassium),
-        ph: Number.parseFloat(formData.pH), // Ensure the key matches the API's expected input
-        rainfall: Number.parseFloat(formData.rainfall),
-        city: formData.city,
-      });
+      // Make a POST request to the backend API
+      const response = await axios.post(
+        "https://cropapi-kn6k.onrender.com/crop-predict",
+        {
+          nitrogen: parseFloat(formData.nitrogen),
+          phosphorous: parseFloat(formData.phosphorous),
+          potassium: parseFloat(formData.potassium),
+          temperature: parseFloat(formData.temperature),
+          humidity: parseFloat(formData.humidity),
+          ph: parseFloat(formData.pH),
+          rainfall: parseFloat(formData.rainfall),
+        }
+      );
 
-      // Set the prediction from the API response
       if (response.data.success) {
         setPrediction(response.data.prediction);
       } else {
@@ -67,104 +76,128 @@ const CropPredictionForm = () => {
       }
     } catch (error) {
       console.error("Error fetching crop prediction:", error);
-      setPrediction(
-        "An error occurred. Please check your inputs and try again."
-      );
+      setPrediction("An error occurred. Please check your inputs and try again.");
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
   return (
-    <LinearGradient colors={["#1E3C72", "#2A5298"]} className="flex-1">
-      <ScrollView className="flex-1 px-6 pt-10">
-        {/* Header */}
-        <Text className="text-4xl font-extrabold text-white text-center">
+    <LinearGradient colors={["#1E3C72", "#2A5298"]} style={{ flex: 1 }}>
+      <ScrollView style={{ flex: 1, padding: 16, paddingTop: 40 }}>
+        <Text
+          style={{
+            fontSize: 32,
+            fontWeight: "bold",
+            color: "white",
+            textAlign: "center",
+          }}
+        >
           🌾 Crop Predictor
         </Text>
-        <Text className="text-lg text-gray-200 text-center mt-2">
+        <Text
+          style={{
+            fontSize: 16,
+            color: "gray",
+            textAlign: "center",
+            marginTop: 8,
+          }}
+        >
           Enter details to get the best crop recommendation.
         </Text>
 
-        {/* Form Container */}
-        <View className="bg-white/10 p-6 mb-16 rounded-3xl shadow-lg backdrop-blur-lg mt-6 border border-white/20">
+        <View
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            padding: 20,
+            marginTop: 20,
+            borderRadius: 20,
+            shadowColor: "#000",
+            shadowOpacity: 0.3,
+            shadowOffset: { width: 0, height: 4 },
+            shadowRadius: 6,
+          }}
+        >
           {[
-            { label: "Nitrogen", key: "nitrogen" as const },
-            { label: "Phosphorous", key: "phosphorous" as const },
-            { label: "Potassium", key: "potassium" as const },
-            { label: "pH Level", key: "pH" as const },
-            { label: "Rainfall (mm)", key: "rainfall" as const },
+            { label: "Nitrogen", key: "nitrogen" },
+            { label: "Phosphorous", key: "phosphorous" },
+            { label: "Potassium", key: "potassium" },
+            { label: "Temperature (°C)", key: "temperature" },
+            { label: "Humidity (%)", key: "humidity" },
+            { label: "pH Level", key: "pH" },
+            { label: "Rainfall (mm)", key: "rainfall" },
           ].map((field) => (
-            <View key={field.key} className="mb-4">
-              <Text className="text-white text-lg mb-1">{field.label}</Text>
+            <View key={field.key} style={{ marginBottom: 20 }}>
+              <Text style={{ color: "white", fontSize: 18, marginBottom: 8 }}>
+                {field.label}
+              </Text>
               <TextInput
-                className="bg-white/20 p-4 rounded-lg text-lg text-white border border-white/30 shadow-md"
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.2)",
+                  padding: 12,
+                  borderRadius: 10,
+                  color: "white",
+                  fontSize: 16,
+                  borderColor: "rgba(255, 255, 255, 0.3)",
+                  borderWidth: 1,
+                }}
                 placeholder={`Enter ${field.label}`}
                 placeholderTextColor="white"
                 keyboardType="numeric"
-                value={formData[field.key]}
-                onChangeText={(value) => handleInputChange(field.key, value)}
+                value={formData[field.key as keyof FormData]}
+                onChangeText={(value: string) =>
+                  handleInputChange(field.key as keyof FormData, value)
+                }
               />
             </View>
           ))}
 
-          {/* State Picker */}
-          <View className="mb-4">
-            <Text className="text-white text-lg mb-1">State</Text>
-            <View className="bg-white/20 rounded-lg border border-white/30 shadow-md">
-              <Picker
-                selectedValue={formData.state}
-                onValueChange={(value) => handleInputChange("state", value)}
-                style={{ color: "white" }}
-              >
-                <Picker.Item label="Select State" value="" />
-                <Picker.Item label="Maharashtra" value="Maharashtra" />
-                <Picker.Item label="Madhya Pradesh" value="Madhya Pradesh" />
-              </Picker>
-            </View>
-          </View>
-
-          {/* City Picker */}
-          <View className="mb-6">
-            <Text className="text-white text-lg mb-1">City</Text>
-            <View className="bg-white/20 rounded-lg border border-white/30 shadow-md">
-              <Picker
-                selectedValue={formData.city}
-                onValueChange={(value) => handleInputChange("city", value)}
-                style={{ color: "white" }}
-                enabled={!!formData.state} // Disable city picker until a state is selected
-              >
-                <Picker.Item label="Select City" value="" />
-                {cities.map((city) => (
-                  <Picker.Item key={city} label={city} value={city} />
-                ))}
-              </Picker>
-            </View>
-          </View>
-
-          {/* Submit Button */}
           <TouchableOpacity
             onPress={handleSubmit}
-            className="bg-[#FF8C00] py-4 rounded-lg shadow-lg"
-            disabled={loading || !formData.state || !formData.city} // Disable if no state or city is selected
+            style={{
+              backgroundColor: "#FF8C00",
+              paddingVertical: 12,
+              borderRadius: 10,
+              alignItems: "center",
+              marginTop: 20,
+            }}
+            disabled={loading}
           >
-            <Text className="text-white text-lg font-semibold text-center">
+            <Text style={{ color: "white", fontSize: 18, fontWeight: "bold" }}>
               {loading ? "🚜 Predicting..." : "🚜 Predict Crop"}
             </Text>
           </TouchableOpacity>
 
-          {/* Display Prediction */}
+          {loading && (
+            <ActivityIndicator
+              size="large"
+              color="#FF8C00"
+              style={{ marginTop: 20 }}
+            />
+          )}
+
           {prediction && (
-            <View className="mt-6 p-4 bg-white/10 rounded-lg border border-white/20">
-              <Text className="text-white text-lg font-semibold mb-2">
+            <View
+              style={{
+                marginTop: 20,
+                padding: 16,
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                borderRadius: 10,
+              }}
+            >
+              <Text
+                style={{ color: "white", fontSize: 18, fontWeight: "bold" }}
+              >
                 Recommended Crop:
               </Text>
-              <Text className="text-white text-base capitalize">
+              <Text style={{ color: "white", fontSize: 16, marginTop: 8 }}>
                 {prediction}
               </Text>
             </View>
           )}
         </View>
+        {/* Add space at the bottom */}
+        <View className="h-20" />
       </ScrollView>
     </LinearGradient>
   );

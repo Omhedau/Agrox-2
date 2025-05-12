@@ -16,7 +16,7 @@ const Page = () => {
   };
 
  
-  const { getUser } = useUserStore() as { getUser: () => void };
+  const { getUser, logout } = useUserStore() as { getUser: () => void, logout: () => void };
 
   const [isSignedIn, setIsSignedIn] = React.useState<boolean | null>(null); // null indicates loading state
   const router = useRouter();

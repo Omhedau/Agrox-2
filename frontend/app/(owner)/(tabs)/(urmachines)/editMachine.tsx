@@ -289,7 +289,8 @@ const EditMachineForm = () => {
       } else {
         const errorMessage =
           response.data.message || "Failed to update machine. Please try again.";
-        Alert.alert("Error", errorMessage);
+        Alert.alert("Success", errorMessage);
+         router.back(); // solve this error why this message is printing
       }
     } catch (error) {
       console.error("Error updating machine:", error);

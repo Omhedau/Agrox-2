@@ -84,7 +84,7 @@ const Machines = () => {
         }
       >
         <Text className="text-2xl font-extrabold text-[#374151] mb-4">
-          Available Machines
+          Your Machines
         </Text>
 
         {machines.length > 0 ? (

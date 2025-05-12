@@ -21,9 +21,9 @@ const _layout = () => {
         }}
       />
       <Tabs.Screen
-        name="(ecom)"
+        name="(recommendation)"
         options={{
-          title: "Marketplace",
+          title: "recommend",
           headerShown: false,
         }}
       />

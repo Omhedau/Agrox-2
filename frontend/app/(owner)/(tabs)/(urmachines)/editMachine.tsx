@@ -85,6 +85,7 @@ const EditMachineForm = () => {
     category: machine.category || "",
     images: machine.images || [] as string[],
     documents: machine.documents || [] as string[],
+    availableStatus: machine.availableStatus || true,
   });
 
   const rentalUnits = ["hour", "day", "week", "month", "year"];
@@ -105,6 +106,7 @@ const EditMachineForm = () => {
         category: machine.category || "",
         images: machine.images || [],
         documents: machine.documents || [],
+        availableStatus: machine.availableStatus || true,
       });
       setSelectedDistrict(machine.district || "");
       setSelectedTaluka(machine.taluka || "");
@@ -307,6 +309,20 @@ const EditMachineForm = () => {
         <Text className="text-primary-500 font-bold text-2xl mb-4">
           Edit Machine
         </Text>
+        <Text className="text-gray-700 font-rubik mb-2">Is the machine currently available?</Text>
+       
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={formData.availableStatus ? "yes" : "no"}
+            onValueChange={(itemValue) =>
+              setFormData({ ...formData, availableStatus: itemValue === "yes" })
+            }
+            style={styles.picker}
+          >
+            <Picker.Item label="Yes" value="yes" />
+            <Picker.Item label="No" value="no" />
+          </Picker>
+        </View>
 
         {/* Machine Name */}
         <Text className="text-gray-700 font-rubik mb-2">Machine Name</Text>
@@ -528,7 +544,7 @@ const EditMachineForm = () => {
                   style={[
                     styles.villageItem,
                     selectedVillages.some((v) => v._id === item._id) &&
-                      styles.selectedVillage,
+                    styles.selectedVillage,
                   ]}
                   onPress={() => toggleVillageSelection(item)}
                 >
@@ -565,45 +581,45 @@ const EditMachineForm = () => {
 
 
 const styles = StyleSheet.create({
-    pickerContainer: {
-      borderWidth: 1,
-      borderColor: "#E2E8F0",
-      borderRadius: 8,
-      backgroundColor: "#F7FAFC",
-      marginBottom: 10,
-    },
-    picker: {
-      width: "100%",
-      height: 50,
-      color: "#1A202C",
-    },
-    villageItem: {
-      padding: 10,
-      borderBottomWidth: 1,
-      borderColor: "#E2E8F0",
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-    },
-    villageText: {
-      fontSize: 16,
-      color: "#1A202C",
-    },
-    selectedVillage: {
-      backgroundColor: "#E6FFFA",
-    },
-    removeIcon: {
-      position: "absolute",
-      top: 10,
-      right: 10,
-      backgroundColor: "white",
-      borderRadius: 12,
-      padding: 4,
-    },
-    requiredStar: {
-      color: "red",
-    },
-  });
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderRadius: 8,
+    backgroundColor: "#F7FAFC",
+    marginBottom: 10,
+  },
+  picker: {
+    width: "100%",
+    height: 50,
+    color: "#1A202C",
+  },
+  villageItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: "#E2E8F0",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  villageText: {
+    fontSize: 16,
+    color: "#1A202C",
+  },
+  selectedVillage: {
+    backgroundColor: "#E6FFFA",
+  },
+  removeIcon: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 4,
+  },
+  requiredStar: {
+    color: "red",
+  },
+});
 
 
 export default EditMachineForm;

@@ -14,32 +14,14 @@ const CropHealth = () => {
         Crop Health Services
       </Text>
       <Text className="text-lg text-gray-600 text-center leading-6 mt-2">
-        Get expert recommendations for crops, fertilizers, and disease prevention.
+        Identify plant diseases and get expert treatment advice.
       </Text>
 
       {/* Emoji for Visual Appeal */}
-      <Text className="text-5xl mt-4">🌿🚜</Text>
+      <Text className="text-4xl mt-6">🌿</Text>
 
       {/* Action Buttons */}
       <View className="w-full  mt-6 space-y-4">
-        <TouchableOpacity
-          onPress={() => router.push("/(root)/(tabs)/(crop)/cropRecomendation")}
-          className="bg-indigo-600 mt-2 p-4  py-4 rounded-xl w-full shadow-md"
-        >
-          <Text className="text-white text-lg font-semibold text-center">
-            🌱 Crop Recommendation
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => router.push("/(root)/(tabs)/(crop)/fertilizerRecommednemtion")}
-          className="bg-indigo-500 py-4  mt-2 rounded-xl w-full shadow-md"
-        >
-          <Text className="text-white text-lg  font-semibold text-center">
-            🌾 Fertilizer Recommendation
-          </Text>
-        </TouchableOpacity>
-
         <TouchableOpacity
           onPress={() => router.push("/(root)/(tabs)/(crop)/plantdisease")}
           className="bg-indigo-400 py-4 mt-2 rounded-xl w-full shadow-md"

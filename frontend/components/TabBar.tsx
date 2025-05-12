@@ -5,18 +5,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
+  const text_primaryColor = "#4F83CC"; //Dark Green Color
+  const primaryColor = "#4ADE80"; // Light green for active tab background
+  const primaryColor_300 = "#84EC84";
+  const primaryColor_400 = "#4F83CC";
+  const primaryColor_500 = "#2C7F30";
+  const greyColor = "#737373"; // Gray for inactive tab background
 
-   const text_primaryColor = "#4F83CC"; //Dark Green Color
-   const primaryColor = "#4ADE80";   // Light green for active tab background
-   const primaryColor_300 = "#84EC84"  
-   const primaryColor_400 = "#4F83CC"; 
-   const primaryColor_500 = "#2C7F30"; 
-   const greyColor = "#737373"; // Gray for inactive tab background
-  
   const icons: { [key: string]: string } = {
     home: "home",
     "(rental)": "construct",
-    "(ecom)": "cart",
+    "(recommendation)": "trending-up", // Good for trending suggestions
     "(crop)": "leaf",
   };
 
@@ -62,7 +61,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
             <View
               style={[
                 styles.iconContainer,
-                { backgroundColor: isFocused ? primaryColor_400 : "#E5E7EB" }, // Light gray for inactive
+                { backgroundColor: isFocused ? primaryColor_400 : "#E5E7EB" },
               ]}
             >
               <Ionicons
@@ -71,12 +70,12 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
                     route.name as keyof typeof icons
                   ] as keyof typeof Ionicons.glyphMap
                 }
-                size={22} // Slightly reduced icon size for a compact look
-                color={isFocused ? "#fff" : greyColor} // White icon for active, gray for inactive
+                size={22}
+                color={isFocused ? "#fff" : greyColor}
               />
             </View>
             <Text
-             className="font-rubik"
+              className="font-rubik"
               style={[
                 styles.tabbarLabel,
                 { color: isFocused ? text_primaryColor : greyColor },
@@ -97,15 +96,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "white", //"#E8F8E8",
-    // marginHorizontal: 5, // Adjusted margin for a smaller width
+    backgroundColor: "white",
     marginTop: 4,
-    paddingVertical: 10, // Reduced padding for a smaller height
+    paddingVertical: 10,
     paddingHorizontal: 8,
-    borderTopLeftRadius: 20, // Rounded only the top-left corner
-    borderTopRightRadius: 20, // Rounded only the top-right corner
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     shadowColor: "black",
-    shadowOffset: { width: 0, height: 6 }, // Adjusted shadow for compact height
+    shadowOffset: { width: 0, height: 6 },
     shadowRadius: 8,
     shadowOpacity: 0.1,
     elevation: 3,
@@ -117,16 +115,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconContainer: {
-    width: 36, // Reduced size for a smaller icon container
+    width: 36,
     height: 36,
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
   },
   tabbarLabel: {
-    fontSize: 11, // Slightly smaller font size
+    fontSize: 11,
     fontWeight: "600",
-    marginTop: 3, // Reduced margin for a compact look
+    marginTop: 3,
   },
 });
 

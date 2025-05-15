@@ -15,8 +15,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const icons: { [key: string]: string } = {
     home: "home",
     "(rental)": "construct",
-    "(recommendation)": "trending-up", // Good for trending suggestions
-    "(crop)": "leaf",
+    "(recommendation)": "leaf", // Good for trending suggestions
   };
 
   return (

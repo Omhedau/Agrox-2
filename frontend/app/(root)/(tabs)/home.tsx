@@ -76,42 +76,29 @@ const Home: React.FC = () => {
               </Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity
-              onPress={() => router.push("/(owner)/(tabs)/dashboard")}
-              className="bg-white rounded-xl shadow-md overflow-hidden"
-              style={styles.cardShadow}
+            <LinearGradient
+              colors={["#FFFFFF", "#E3F2FD"]}
+              className="rounded-2xl overflow-hidden mt-2"
+              style={[styles.cardShadow]}
             >
-              <View className="p-5 text-center">
-                <Text className="text-[#4F83CC] text-center text-lg font-bold">
+              <TouchableOpacity
+                onPress={() => router.push("/(owner)/(tabs)/dashboard")}
+                className="h-48 flex items-center justify-center px-6"
+              >
+                <Ionicons name="briefcase-outline" size={36} color="#4F83CC" />
+                <Text className="text-xl font-semibold text-gray-900 mt-4">
                   Become an Owner
                 </Text>
-              </View>
-            </TouchableOpacity>
+                <Text className="text-sm text-gray-600 mt-2 text-center">
+                  List your machinery and grow your agri-business.
+                </Text>
+              </TouchableOpacity>
+            </LinearGradient>
           )}
         </View>
 
         {/* Quick Actions */}
-        <View className="flex-row justify-between mb-6">
-          <TouchableOpacity
-            className="bg-white p-5 rounded-lg shadow-md flex-1 mx-2 flex-row items-center"
-            onPress={() => router.push("/home")}
-            style={styles.cardShadow}
-          >
-            <Ionicons name="construct-outline" size={24} color="#4F83CC" />
-            <Text className="ml-2 text-gray-900 font-medium">
-              Rent Machinery
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            className="bg-white p-5 rounded-lg shadow-md flex-1 mx-2 flex-row items-center"
-            onPress={() => router.push("/home")}
-            style={styles.cardShadow}
-          >
-            <Ionicons name="document-text-outline" size={24} color="#4F83CC" />
-            <Text className="ml-2 text-gray-900 font-medium">View Schemes</Text>
-          </TouchableOpacity>
-        </View>
+        <View className="flex-row justify-between mb-6"></View>
       </ScrollView>
     </SafeAreaView>
   );

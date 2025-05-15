@@ -27,13 +27,6 @@ const _layout = () => {
           headerShown: false,
         }}
       />
-      <Tabs.Screen
-        name="(crop)"
-        options={{
-          title: "Crop Health",
-          headerShown: false,
-        }}
-      />
     </Tabs>
   );
 };

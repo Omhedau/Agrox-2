@@ -6,25 +6,25 @@ const testimonials = [
     id: "1",
     name: "Ganpat Jadhav",
     feedback:
-      "FarmEase cha owner section khup sope ani upyogi ahe. Sheti vyavasthapan khoop sope jhale!",
+      "FarmEase's rental equipment section is very simple and useful. Renting tools for my farm has become very easy!",
   },
   {
     id: "2",
     name: "Savita Pawar",
     feedback:
-      "Dashboard cha UI neat ahe. Shetkaryansathi ati sundar upayogkarak app!",
+      "The dashboard UI is clean and efficient. The crop recommendation system based on soil reports helped me plan my farming smartly.",
   },
   {
     id: "3",
     name: "Ramesh Patil",
     feedback:
-      "FarmEase mule sheti che sakal upay khup sopat hotay. Mala hya application ne khup madat keli.",
+      "Thanks to FarmEase, I could rent farm machinery without any hassle. Also, the crop suggestions matched my soil type perfectly.",
   },
   {
     id: "4",
     name: "Jyoti Shinde",
     feedback:
-      "Shetkaryansathi ek dam best app. Krushi vyavsayat technology vaaparayla shikli!",
+      "An excellent app for farmers! I learned how to use modern tools and choose the best crops using soil test data.",
   },
 ];
 
@@ -43,7 +43,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({ name, feedback }) => 
 const Testimonials = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>🚜 शेतीमालक काय म्हणतात? </Text>
+      <Text style={styles.heading}>🚜 What Do Our Farmers Say?</Text>
       {testimonials.map((item) => (
         <TestimonialCard
           key={item.id}

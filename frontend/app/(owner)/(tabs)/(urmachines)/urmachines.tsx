@@ -25,12 +25,12 @@ const Machines = () => {
     rentalCost: { $numberDecimal: string };
     rentalUnit: string;
     images: string[];
+    availableStatus: boolean;
   }
 
   const [machines, setMachines] = useState<Machine[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Function to fetch machines from API
   const fetchMachines = async () => {
     try {
       setRefreshing(true);
@@ -66,7 +66,6 @@ const Machines = () => {
     fetchMachines();
   }, []);
 
-  // Function to handle pull-to-refresh
   const onRefresh = useCallback(() => {
     fetchMachines();
   }, []);
@@ -91,7 +90,9 @@ const Machines = () => {
           machines.map((machine) => (
             <View
               key={machine._id}
-              className="bg-white rounded-xl shadow-lg mb-4 p-4 flex-row items-center"
+              className={`rounded-xl shadow-lg mb-4 p-4 flex-row items-center ${
+                machine.availableStatus ? "bg-white" : "bg-red-50"
+              }`}
               style={styles.cardShadow}
             >
               <Image
@@ -102,6 +103,9 @@ const Machines = () => {
               <View className="flex-1">
                 <Text className="text-lg font-semibold text-gray-900">
                   {machine.name}
+                  {!machine.availableStatus && (
+                    <Text className="text-red-500 text-sm"> (Unavailable)</Text>
+                  )}
                 </Text>
                 <Text className="text-gray-600">Model: {machine.model}</Text>
                 <Text className="text-gray-500">Year: {machine.yearOfMfg}</Text>
@@ -116,7 +120,9 @@ const Machines = () => {
                     params: { machineId: machine._id },
                   })
                 }
-                className="p-2 bg-[#4F83CC] rounded-full"
+                className={`p-2 rounded-full ${
+                  machine.availableStatus ? "bg-[#4F83CC]" : "bg-gray-400"
+                }`}
               >
                 <Ionicons name="chevron-forward" size={24} color="#fff" />
               </TouchableOpacity>

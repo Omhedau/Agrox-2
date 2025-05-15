@@ -18,7 +18,7 @@ const OtpVerification = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [resendTimer, setResendTimer] = useState(57);
   const inputRefs = useRef<(TextInput | null)[]>([]);
-  const { verifyOtp } = useUserStore() as { verifyOtp: (mobile: string, otp: string) => void }; 
+  const { verifyOtp } = useUserStore() as { verifyOtp: (mobile: string, otp: string) => void };
 
   const handleInputChange = (text: string, index: number) => {
     const newOtp = [...otp];
@@ -41,7 +41,7 @@ const OtpVerification = () => {
 
   const handleVerifyOtp = () => {
     // Logic to verify OTP
-    verifyOtp(mobile, otp.join(""));  
+    verifyOtp(mobile, otp.join(""));
   };
 
   const handleResendOtp = () => {
@@ -128,7 +128,9 @@ const OtpVerification = () => {
             source={images.japan}
             className="w-full h-32 mt-6"
             resizeMode="contain"
+            style={{ opacity: 0 }}
           />
+
           <Text className="text-center text-gray-500 text-xs mt-2">
             © Farmease 2025
           </Text>
